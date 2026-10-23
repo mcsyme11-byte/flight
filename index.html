@@ -129,6 +129,94 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 @media (max-width:400px){.career .ctot.long b{font-size:16px}}
 .career .ccols > div{min-width:0}
 @media (min-width:900px){.career .ccols.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 40px}}
+/* (6.3) on a wide screen the two lists run full width, each in two columns, so a short list leaves no gap beside a long one */
+@media (min-width:900px){.career .ccols.two.wide{display:block}
+  .career .clist{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 40px}
+  .career .clist .crow:last-child{border-bottom:0}.career .clist .crow:nth-last-child(2):nth-child(odd){border-bottom:0;padding-bottom:2px}}
+
+/* (6.3) the rest of the career: six totals, the last 30 days, landings, the route map, aircraft and airports,
+   records, milestones. Each part can be hidden by the pilot; what's hidden never reaches the page. */
+.career .ctot.six{grid-template-columns:repeat(3,minmax(0,1fr))}
+.career .ctot.six div:nth-child(3n+1){border-left:0}
+.career .ctot.six div:nth-child(n+4){border-top:1px solid var(--stroke)}
+@media (min-width:900px){.career .ctot.six{grid-template-columns:repeat(6,minmax(0,1fr))}.career .ctot.six div:nth-child(3n+1){border-left:1px solid var(--stroke)}
+  .career .ctot.six div:first-child{border-left:0}.career .ctot.six div:nth-child(n+4){border-top:0}}
+.career .cnote{font-size:12.5px;line-height:1.4;font-style:italic;color:var(--text3);margin-top:10px}
+.cgrid{display:grid;gap:14px}
+#careerMore .csub{font:400 10.5px/1 var(--font);letter-spacing:.28em;text-transform:uppercase;color:var(--brass);margin:20px 0 4px}
+@media (min-width:900px){.cgrid.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.cgrid > .card{min-width:0}
+.chd{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.chd .r{font-size:12.5px;font-style:italic;color:var(--text3);white-space:nowrap}
+.mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px;border-top:1px solid var(--stroke);border-bottom:1px solid var(--stroke)}
+.mini div{padding:11px 4px 10px;text-align:center;min-width:0}
+.mini div+div{border-left:1px solid var(--stroke)}
+.mini.six div:nth-child(4){border-left:0}
+.mini.six div:nth-child(n+4){border-top:1px solid var(--stroke)}
+.mini b{display:block;font:400 21px/1.1 var(--font);white-space:nowrap}
+.mini span{display:block;font:400 10px/1 var(--font);letter-spacing:.22em;text-transform:uppercase;color:var(--text3);margin-top:7px}
+@media (max-width:360px){.mini b{font-size:18px}.mini span{letter-spacing:.14em}}
+.lrow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 14px;padding:11px 0;border-bottom:1px solid var(--stroke)}
+.lrow:last-child{border-bottom:0;padding-bottom:2px}
+.lrow .l{min-width:0}
+.lrow .l b{display:block;font:400 16px/1.25 var(--font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .l span{display:block;font-size:12.5px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:2px;overflow-wrap:anywhere}
+.lrow .r{text-align:right;white-space:nowrap}
+.lrow .r b{display:block;font:400 17px/1.2 var(--font)}
+.lrow .r b small{font-size:12px;color:var(--text3);font-style:italic;margin-left:3px}
+.lrow .r .gtag{margin-top:4px;height:20px;font-size:11.5px;padding:0 7px}
+.lrow .r .cnt{font-size:12.5px;font-style:italic;color:var(--text3)}
+.lavg{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 18px;margin-top:14px}
+.lavg .big{font:400 34px/1 var(--font);white-space:nowrap}
+.lavg .big small{font-size:14px;color:var(--text3);font-style:italic;margin-left:5px}
+.lavg .what{font-size:12.5px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:6px}
+.lavg .stab{text-align:left}
+@media (min-width:480px){.lavg .stab{text-align:right}}
+.lavg .stab b{display:block;font:400 19px/1.1 var(--font)}
+.lavg .stab span{display:block;font-size:12.5px;color:var(--text3);font-style:italic;margin-top:5px}
+.gbar{display:flex;gap:2px;height:10px;margin-top:16px;border-radius:2px;overflow:hidden}
+.gbar i{display:block;min-width:3px;background:var(--g)}
+.glegend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12.5px;color:var(--text2)}
+.glegend span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.glegend span i{display:block;width:8px;height:8px;border-radius:50%;background:var(--g)}
+.glegend span b{font-weight:400;color:var(--text)}
+.trend{margin-top:18px}
+.trend svg{display:block;width:100%;height:96px}
+.trend .tcap{display:flex;justify-content:space-between;gap:12px;font-size:12px;font-style:italic;color:var(--text3);margin-top:6px}
+.cmapcard{padding:0;overflow:hidden;position:relative}
+.cmapcard .chd{position:absolute;left:16px;right:16px;top:14px;pointer-events:none}
+.cmapcard::before{content:"";position:absolute;left:0;right:0;top:0;height:52px;background:linear-gradient(rgba(12,17,25,.92),rgba(12,17,25,0));pointer-events:none}
+.cmap{display:block;width:100%;height:280px;background:#0C1119}
+.cmap svg{display:block;width:100%;height:100%}
+.cmapcard .maplegend{left:16px;bottom:12px}
+@media (min-width:640px){.cmap{height:360px}}
+@media (min-width:960px){.cmap{height:440px}}
+.rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;margin-top:6px}
+.rgrid > div{padding:13px 0 12px;border-top:1px solid var(--stroke);min-width:0}
+.rgrid > div:nth-child(-n+2){border-top:0}
+@media (min-width:760px){.rgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:0 22px}.rgrid > div{border-top:0}.rgrid > div+div{border-left:1px solid var(--stroke);padding-left:22px}}
+.rgrid .k{font:400 10.5px/1.2 var(--font);letter-spacing:.24em;text-transform:uppercase;color:var(--brass)}
+.rgrid .v{font:400 22px/1.15 var(--font);margin-top:9px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;min-width:0}
+.rgrid .v .gtag{margin:0;height:20px;font-size:11.5px;padding:0 7px}
+.rgrid .s{font-size:12.5px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:5px;overflow-wrap:anywhere}
+.mnext{margin-top:12px}
+.mnext > div{padding:11px 0 12px;border-bottom:1px solid var(--stroke)}
+.mnext .t{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.mnext .t b{font:400 16px/1.25 var(--font);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mnext .t span{font-size:12.5px;font-style:italic;color:var(--text3);white-space:nowrap}
+.mnext .bar{height:4px;margin-top:9px;background:var(--stroke);border-radius:2px;overflow:hidden}
+.mnext .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brassDim),var(--brass))}
+.mdone{display:grid;margin-top:4px}
+@media (min-width:900px){.mdone{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 40px}}
+.mrow{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:11px 0;border-bottom:1px solid var(--stroke);min-width:0}
+.mrow .ic{width:22px;height:22px;color:var(--brass)}
+.mrow .ic svg{display:block;width:22px;height:22px}
+.mrow .l{min-width:0}
+.mrow .l b{display:block;font:400 16px/1.25 var(--font)}
+.mrow .l span{display:block;font-size:12.5px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:2px;overflow-wrap:anywhere}
+.mrow .d{font-size:12.5px;font-style:italic;color:var(--text3);white-space:nowrap}
+.mmore{display:block;margin:14px auto 0;color:var(--brass);font-size:13px;letter-spacing:.06em;padding:8px 12px;border:1px solid var(--brassDim);border-radius:3px}
+.mmore:hover{border-color:var(--brass)}
 
 /* idle / off / unreachable */
 .msg{text-align:center;padding:34px 20px}
@@ -253,7 +341,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
     </section>
 
     <!-- (5.2) the pilot's career, flying or not, when they chose to show it -->
-    <section id="vCareer" hidden><div class="stack"><div class="card career" id="career"></div></div></section>
+    <section id="vCareer" hidden><div class="stack"><div class="card career" id="career"></div><div class="stack" id="careerMore" style="margin-top:0"></div></div></section>
 
     <!-- sharing switched off -->
     <section id="vOff" hidden>
@@ -281,7 +369,7 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 
 <script>
 "use strict";
-var LEGAL={"about": "<h1>About this page<\/h1><p class=\"eff\">Shared with Squawk<\/p><p>This page shows a flight in Microsoft Flight Simulator, shared by the pilot with Squawk. It updates on its own while the pilot is flying. If the pilot chose to, it also shows their career and recent landings.<\/p><div class=\"lbl\"><span class=\"ic\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"m9 12 2 2 4-4\"/><\/svg><\/span><div><b>A simulated flight<\/b><span>Everything on this page comes from a flight simulator. It is not a real aircraft.<\/span><\/div><\/div><h2>Data and credits<\/h2><div class=\"grp\"><div><b>Flight data<\/b>The pilot’s simulator, through Logbook and Squawk, and the VATSIM network.<\/div><div><b>Map<\/b>Natural Earth (naturalearthdata.com), public domain.<\/div><div><b>Delivered by<\/b>Tailscale Funnel, from the pilot’s own computer, and, for the always-on copy, GitHub Pages.<\/div><\/div><h2>Contact<\/h2><div class=\"grp\"><div><b>Developer<\/b>Malcolm Syme<\/div><div><b>Email<\/b><a href=\"mailto:mcsyme11@gmail.com\">mcsyme11@gmail.com<\/a><\/div><\/div><p class=\"foot\">Squawk is an independent project and is not made by, endorsed by or affiliated with VATSIM, the developer of vPilot, Microsoft, Tailscale, GitHub or Apple.<br>© 2026 Malcolm Syme. All rights reserved.<\/p>", "privacy": "<h1>Privacy Policy<\/h1><p class=\"eff\">Effective October 21, 2026<\/p><div class=\"lbl\"><span class=\"ic\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"m9 12 2 2 4-4\"/><\/svg><\/span><div><b>Data Not Collected<\/b><span>This page does not collect any information about you.<\/span><\/div><\/div><p>This Privacy Policy describes how this share page, provided by Squawk (the “Software”), developed by Malcolm Syme (the “Developer”), handles information.<\/p><h2>1. Information We Collect<\/h2><p>The Software does not collect, store or share any information about people who view this page. The page uses no cookies, accounts, advertising, analytics or tracking.<\/p><h2>2. What This Page Shows<\/h2><p>This page shows simulated flight information that the pilot has chosen to share: callsign, aircraft type, airports, position, altitude, speed, heading, flight phase, estimated arrival, landing details, a summary of the pilot’s most recent logged flight and, if the pilot chose to show it, a summary of their career and recent landings.<\/p><h2>3. Third-Party Services<\/h2><p>The page is delivered from the pilot’s computer by <b>Tailscale<\/b> (Tailscale Funnel), or, for the always-on copy, by <b>GitHub Pages<\/b>; the always-on copy also asks the pilot’s computer for the live flight through Tailscale Funnel. Like any website, delivering it involves your device’s IP address, which Tailscale and GitHub process under their own privacy policies. The Developer does not receive it.<\/p><h2>4. Children’s Privacy<\/h2><p>The Software does not collect personal information from anyone, including children.<\/p><h2>5. Changes to This Policy<\/h2><p>If the way this page handles information changes, this Privacy Policy will be updated and the effective date at the top will change.<\/p><h2>6. Contact<\/h2><p>Questions about this Privacy Policy may be directed to the Developer:<\/p><div class=\"grp\"><div><b>Developer<\/b>Malcolm Syme<\/div><div><b>Email<\/b><a href=\"mailto:mcsyme11@gmail.com\">mcsyme11@gmail.com<\/a><\/div><\/div><p class=\"foot\">© 2026 Malcolm Syme. All rights reserved.<\/p>", "terms": "<h1>Terms of Use<\/h1><p class=\"eff\">Effective October 21, 2026<\/p><p>These Terms of Use (the “Terms”) govern your use of this share page, provided by Squawk (the “Software”), developed by Malcolm Syme (the “Developer”). By viewing this page, you agree to these Terms.<\/p><h2>1. Simulation Only<\/h2><p>This page shows information from a flight simulator. It does not show a real aircraft and must not be used for any real-world aviation, navigation or other purpose.<\/p><h2>2. Accuracy and Availability<\/h2><p>Information on this page may be delayed, approximate or unavailable. The live flight is only available while the pilot’s computer is running and sharing is turned on; the always-on copy shows the most recent information the pilot shared.<\/p><h2>3. Disclaimer of Warranties<\/h2><p class=\"caps\">THE SOFTWARE IS PROVIDED “AS IS” AND “AS AVAILABLE”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY AND NON-INFRINGEMENT. THE DEVELOPER DOES NOT WARRANT THAT THE SOFTWARE WILL BE UNINTERRUPTED, ERROR-FREE OR FREE OF HARMFUL COMPONENTS.<\/p><h2>4. Limitation of Liability<\/h2><p class=\"caps\">TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE DEVELOPER SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR EXEMPLARY DAMAGES, OR FOR ANY LOSS OF DATA, ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF, OR INABILITY TO USE, THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF CERTAIN DAMAGES, SO SOME OF THE ABOVE MAY NOT APPLY TO YOU.<\/p><h2>5. Trademarks<\/h2><p>VATSIM, vPilot, Microsoft Flight Simulator, Tailscale, GitHub and other names mentioned are trademarks of their respective owners, used for identification only. This page is not affiliated with or endorsed by them.<\/p><h2>6. Governing Law<\/h2><p>These Terms are governed by and construed in accordance with the laws of the Province of Alberta and the federal laws of Canada applicable therein, without regard to conflict-of-law principles.<\/p><h2>7. Contact<\/h2><p>Questions about these Terms may be directed to the Developer:<\/p><div class=\"grp\"><div><b>Developer<\/b>Malcolm Syme<\/div><div><b>Email<\/b><a href=\"mailto:mcsyme11@gmail.com\">mcsyme11@gmail.com<\/a><\/div><\/div><p class=\"foot\">© 2026 Malcolm Syme. All rights reserved.<\/p>"};
+var LEGAL={"about": "<h1>About this page<\/h1><p class=\"eff\">Shared with Squawk<\/p><p>This page shows a flight in Microsoft Flight Simulator, shared by the pilot with Squawk. It updates on its own while the pilot is flying. If the pilot chose to, it also shows their career and recent landings.<\/p><div class=\"lbl\"><span class=\"ic\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"m9 12 2 2 4-4\"/><\/svg><\/span><div><b>A simulated flight<\/b><span>Everything on this page comes from a flight simulator. It is not a real aircraft.<\/span><\/div><\/div><h2>Data and credits<\/h2><div class=\"grp\"><div><b>Flight data<\/b>The pilot’s simulator, through Logbook and Squawk, and the VATSIM network.<\/div><div><b>Map<\/b>Natural Earth (naturalearthdata.com), public domain.<\/div><div><b>Delivered by<\/b>Tailscale Funnel, from the pilot’s own computer, and, for the always-on copy, GitHub Pages.<\/div><\/div><h2>Contact<\/h2><div class=\"grp\"><div><b>Developer<\/b>Malcolm Syme<\/div><div><b>Email<\/b><a href=\"mailto:mcsyme11@gmail.com\">mcsyme11@gmail.com<\/a><\/div><\/div><p class=\"foot\">Squawk is an independent project and is not made by, endorsed by or affiliated with VATSIM, the developer of vPilot, Microsoft, Tailscale, GitHub or Apple.<br>© 2026 Malcolm Syme. All rights reserved.<\/p>", "privacy": "<h1>Privacy Policy<\/h1><p class=\"eff\">Effective October 23, 2026<\/p><div class=\"lbl\"><span class=\"ic\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"m9 12 2 2 4-4\"/><\/svg><\/span><div><b>Data Not Collected<\/b><span>This page does not collect any information about you.<\/span><\/div><\/div><p>This Privacy Policy describes how this share page, provided by Squawk (the “Software”), developed by Malcolm Syme (the “Developer”), handles information.<\/p><h2>1. Information We Collect<\/h2><p>The Software does not collect, store or share any information about people who view this page. The page uses no cookies, accounts, advertising, analytics or tracking.<\/p><h2>2. What This Page Shows<\/h2><p>This page shows simulated flight information that the pilot has chosen to share: callsign, aircraft type, airports, position, altitude, speed, heading, flight phase, estimated arrival, landing details, a summary of the pilot’s most recent logged flight and, if the pilot chose to show it, a summary of their career: totals, landings, a map of their routes, their aircraft and airports, records and milestones.<\/p><h2>3. Third-Party Services<\/h2><p>The page is delivered from the pilot’s computer by <b>Tailscale<\/b> (Tailscale Funnel), or, for the always-on copy, by <b>GitHub Pages<\/b>; the always-on copy also asks the pilot’s computer for the live flight through Tailscale Funnel. Like any website, delivering it involves your device’s IP address, which Tailscale and GitHub process under their own privacy policies. The Developer does not receive it.<\/p><h2>4. Children’s Privacy<\/h2><p>The Software does not collect personal information from anyone, including children.<\/p><h2>5. Changes to This Policy<\/h2><p>If the way this page handles information changes, this Privacy Policy will be updated and the effective date at the top will change.<\/p><h2>6. Contact<\/h2><p>Questions about this Privacy Policy may be directed to the Developer:<\/p><div class=\"grp\"><div><b>Developer<\/b>Malcolm Syme<\/div><div><b>Email<\/b><a href=\"mailto:mcsyme11@gmail.com\">mcsyme11@gmail.com<\/a><\/div><\/div><p class=\"foot\">© 2026 Malcolm Syme. All rights reserved.<\/p>", "terms": "<h1>Terms of Use<\/h1><p class=\"eff\">Effective October 23, 2026<\/p><p>These Terms of Use (the “Terms”) govern your use of this share page, provided by Squawk (the “Software”), developed by Malcolm Syme (the “Developer”). By viewing this page, you agree to these Terms.<\/p><h2>1. Simulation Only<\/h2><p>This page shows information from a flight simulator. It does not show a real aircraft and must not be used for any real-world aviation, navigation or other purpose.<\/p><h2>2. Accuracy and Availability<\/h2><p>Information on this page may be delayed, approximate or unavailable. The live flight is only available while the pilot’s computer is running and sharing is turned on; the always-on copy shows the most recent information the pilot shared.<\/p><h2>3. Disclaimer of Warranties<\/h2><p class=\"caps\">THE SOFTWARE IS PROVIDED “AS IS” AND “AS AVAILABLE”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY AND NON-INFRINGEMENT. THE DEVELOPER DOES NOT WARRANT THAT THE SOFTWARE WILL BE UNINTERRUPTED, ERROR-FREE OR FREE OF HARMFUL COMPONENTS.<\/p><h2>4. Limitation of Liability<\/h2><p class=\"caps\">TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE DEVELOPER SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR EXEMPLARY DAMAGES, OR FOR ANY LOSS OF DATA, ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF, OR INABILITY TO USE, THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF CERTAIN DAMAGES, SO SOME OF THE ABOVE MAY NOT APPLY TO YOU.<\/p><h2>5. Trademarks<\/h2><p>VATSIM, vPilot, Microsoft Flight Simulator, Tailscale, GitHub and other names mentioned are trademarks of their respective owners, used for identification only. This page is not affiliated with or endorsed by them.<\/p><h2>6. Governing Law<\/h2><p>These Terms are governed by and construed in accordance with the laws of the Province of Alberta and the federal laws of Canada applicable therein, without regard to conflict-of-law principles.<\/p><h2>7. Contact<\/h2><p>Questions about these Terms may be directed to the Developer:<\/p><div class=\"grp\"><div><b>Developer<\/b>Malcolm Syme<\/div><div><b>Email<\/b><a href=\"mailto:mcsyme11@gmail.com\">mcsyme11@gmail.com<\/a><\/div><\/div><p class=\"foot\">© 2026 Malcolm Syme. All rights reserved.<\/p>"};
 // (5.2) on the always-on page (GitHub Pages) the plugin fills this in: {snap:'data.json', live:'https://<pc>.ts.net:8443/'}.
 // Served from the PC itself it stays null, and the page asks its own server.
 var CFG={"snap":"data.json","live":"https://mspc.taila238a8.ts.net:8443/"};
@@ -304,7 +392,7 @@ function bbox(r){var a=90,b=-90,c=1e9,d=-1e9;for(var i=0;i<r.length;i++){var la=
 function mercY(lat){lat=Math.max(-84,Math.min(84,lat));return Math.log(Math.tan(Math.PI/4+lat*Math.PI/360))*180/Math.PI;}
 function wrapLon(lon,ref){while(lon-ref>180)lon-=360;while(lon-ref<-180)lon+=360;return lon;}
 function loadLand(){
-  if(!landLoading)landLoading=fetch('land.json').then(function(r){return r.json();}).then(function(j){land=j.map(function(r){return {r:r,b:bbox(r)};});if(last&&last.flying)drawMap(last);})
+  if(!landLoading)landLoading=fetch('land.json').then(function(r){return r.json();}).then(function(j){land=j.map(function(r){return {r:r,b:bbox(r)};});if(last&&last.flying)drawMap(last);if(last&&last.career)drawCareerMap(last.career);})
     .catch(function(){landLoading=null;});
 }
 function gc(a,b,n){   // great circle from a to b ([lat,lon]), n steps
@@ -403,20 +491,149 @@ function dateText(s,landed){var d=landed?new Date(landed):null;if(!d||isNaN(d))d
 function cRow(title,sub,x){var g=x.grade||gradeOf(x.rate);
   return '<div class="crow"><div class="l"><b>'+esc(title)+'</b><span>'+esc(sub.filter(Boolean).join(' · '))+'</span></div>'+
     '<div class="r"><b>'+fpm(x.rate)+'<small>fpm</small></b><span class="gtag '+gradeCls(g)+'">'+esc(g)+'</span></div></div>';}
-// the pilot's career (only when they chose to show it): totals, the best landing for each aircraft class, the last few landings
+// the pilot's career (only when they chose to show it): totals, the best landing for each aircraft class, the last few
+// landings, then (6.3) the parts the pilot didn't hide: the last 30 days, landings, the route map, aircraft and airports,
+// records and milestones
+var careerData=null,mileOpen=false;
 function renderCareer(d){
   var c=d&&d.on&&d.career,el=$('career');
-  if(!c){$('vCareer').hidden=true;el.innerHTML='';return;}
-  var tot=[[hm(c.minutes||0),'Hours'],[nf(c.flights||0),'Flights'],[nf(c.airports||0),'Airports']],lng=tot.some(function(t){return String(t[0]).length>6;});
-  var h='<div class="eyebrow">Career</div><div class="ctot'+(lng?' long':'')+'">'+tot.map(function(t){return '<div><b>'+esc(String(t[0]))+'</b><span>'+t[1]+'</span></div>';}).join('')+'</div>';
+  if(!c){$('vCareer').hidden=true;el.innerHTML='';$('careerMore').innerHTML='';careerData=null;return;}
+  var tot=[[hm(c.minutes||0),'Hours'],[nf(c.flights||0),'Flights'],[nf(c.airports||0),'Airports']];
+  var six=c.airborneMin!=null;
+  if(six)tot.push([hm(c.airborneMin||0),'Airborne'],[nf(c.distanceNm||0),'nm flown'],c.countries!=null?[nf(c.countries),c.countries===1?'Country':'Countries']:[nf(c.types||0),'Aircraft']);
+  var lng=tot.some(function(t){return String(t[0]).length>6;});
+  var h='<div class="eyebrow">Career</div><div class="ctot'+(six?' six':'')+(lng?' long':'')+'">'+tot.map(function(t){return '<div><b>'+esc(String(t[0]))+'</b><span>'+t[1]+'</span></div>';}).join('')+'</div>';
+  if(six){var nt=[];
+    if(c.flights)nt.push(nf(c.online||0)+' of '+nf(c.flights)+' flight'+(c.flights===1?'':'s')+' on VATSIM');
+    if(c.types)nt.push(nf(c.types)+' aircraft type'+(c.types===1?'':'s'));
+    if(nt.length)h+='<div class="cnote">'+esc(nt.join(' · '))+'</div>';}
   var best=c.best||[],rec=c.recent||[],cols=[];
-  if(best.length)cols.push('<div class="csub">Best landing'+(best.length>1?'s':'')+'</div>'+best.map(function(b){
-    return cRow(b.name,[[b.airport,b.runway].filter(Boolean).join(' '),b.aircraft,dateText(b.date,b.landed)],b);}).join(''));
-  if(rec.length)cols.push('<div class="csub">Recent landings</div>'+rec.map(function(r){
-    return cRow((r.from||'?')+' → '+(r.to||'?'),[[r.airport,r.runway].filter(Boolean).join(' '),r.aircraft,dateText(r.date,r.landed)],r);}).join(''));
-  // side by side on a wide screen
-  if(cols.length)h+='<div class="ccols'+(cols.length>1?' two':'')+'">'+cols.map(function(x){return '<div>'+x+'</div>';}).join('')+'</div>';
-  el.innerHTML=h;$('vCareer').hidden=false;
+  if(best.length)cols.push('<div class="csub">Best landing'+(best.length>1?'s':'')+'</div><div class="clist">'+best.map(function(b){
+    return cRow(b.name,[[b.airport,b.runway].filter(Boolean).join(' '),b.aircraft,dateText(b.date,b.landed)],b);}).join('')+'</div>');
+  if(rec.length)cols.push('<div class="csub">Recent landings</div><div class="clist">'+rec.map(function(r){
+    return cRow((r.from||'?')+' → '+(r.to||'?'),[[r.airport,r.runway].filter(Boolean).join(' '),r.aircraft,dateText(r.date,r.landed)],r);}).join('')+'</div>');
+  // side by side on a wide screen; (6.3) or, with the bigger career, each list full width in two columns
+  if(cols.length)h+='<div class="ccols'+(cols.length>1?' two':'')+(six&&cols.length>1?' wide':'')+'">'+cols.map(function(x){return '<div>'+x+'</div>';}).join('')+'</div>';
+  el.innerHTML=h;
+  // the same parts again: leave them alone (a redraw would reset the map and Show all every 5 s)
+  var key=JSON.stringify(c);
+  if(key!==careerData){careerData=key;$('careerMore').innerHTML=careerMore(c);drawCareerMap(c);}
+  $('vCareer').hidden=false;
+}
+function chip(g){return g?'<span class="gtag '+gradeCls(g)+'">'+esc(g)+'</span>':'';}
+function lRow(title,sub,right){return '<div class="lrow"><div class="l"><b>'+esc(title)+'</b><span>'+esc(sub.filter(Boolean).join(' · '))+'</span></div><div class="r">'+right+'</div></div>';}
+function rateR(rate,g){return rate!=null?'<b>'+fpm(rate)+'<small>fpm</small></b>'+chip(g||gradeOf(rate)):'<span class="cnt">no landing rate</span>';}
+var MEDAL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="12" cy="13.5" r="6.5"/><path d="M8.5 7.8 6 2.5h4l2 3.4 2-3.4h4l-2.5 5.3"/><path d="m12 10.4 1 2.1 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"/></svg>';
+function careerMore(c){
+  var out='',row=[];
+  // last 30 days
+  if(c.month){var m=c.month;
+    var x='<div class="card"><div class="chd"><span class="eyebrow">Last 30 days</span></div>';
+    if(!m.flights)x+='<p class="cnote" style="margin-top:12px">No flights in the last 30 days.</p>';
+    else{x+='<div class="mini six"><div><b>'+nf(m.flights)+'</b><span>'+(m.flights===1?'Flight':'Flights')+'</span></div><div><b>'+hm(m.airborneMin||0)+'</b><span>Airborne</span></div><div><b>'+nf(m.distanceNm||0)+'</b><span>nm flown</span></div>'+
+        '<div><b>'+nf(m.airports||0)+'</b><span>'+(m.airports===1?'Airport':'Airports')+'</span></div><div><b>'+nf(m.online||0)+'</b><span>On VATSIM</span></div><div><b>'+(m.avg!=null?fpm(m.avg):'—')+'</b><span>Avg fpm</span></div></div>';
+      if(m.best)x+='<div class="csub">Best landing</div>'+lRow((m.best.from||'?')+' → '+(m.best.to||'?'),[[m.best.airport,m.best.runway].filter(Boolean).join(' '),m.best.aircraft,dateText(m.best.date,m.best.landed)],rateR(m.best.rate,m.best.grade));}
+    row.push(x+'</div>');}
+  // landings: the average, stable approaches, every grade, the last 20
+  if(c.landings&&c.landings.measured){var L=c.landings,tot=L.grades.reduce(function(a,g){return a+g.n;},0);
+    var x='<div class="card"><div class="chd"><span class="eyebrow">Landings</span></div><div class="lavg"><div><div class="big">'+fpm(L.avg)+'<small>fpm</small></div><div class="what">average of '+nf(L.measured)+' measured landing'+(L.measured===1?'':'s')+'</div></div>';
+    if(L.stableOf)x+='<div class="stab"><b>'+Math.round(100*L.stable/L.stableOf)+' %</b><span>stable approaches · '+nf(L.stable)+' of '+nf(L.stableOf)+'</span></div>';
+    x+='</div>';
+    if(tot){x+='<div class="gbar" role="img" aria-label="'+esc(L.grades.filter(function(g){return g.n;}).map(function(g){return g.n+' '+g.g;}).join(', '))+'">'+L.grades.filter(function(g){return g.n;}).map(function(g){
+        return '<i class="'+gradeCls(g.g)+'" style="flex:'+g.n+' 1 0"></i>';}).join('')+'</div>';
+      x+='<div class="glegend">'+L.grades.map(function(g){return '<span class="'+gradeCls(g.g)+'"><i></i>'+esc(g.g)+' <b>'+nf(g.n)+'</b></span>';}).join('')+'</div>';}
+    if(L.trend&&L.trend.length>1)x+='<div class="trend"><div class="csub" style="margin-top:0">Last '+L.trend.length+' landings</div>'+trendSvg(L.trend,L.avg)+'<div class="tcap"><span>'+esc(dateText(L.trend[0].date,L.trend[0].landed))+'</span><span>'+esc(dateText(L.trend[L.trend.length-1].date,L.trend[L.trend.length-1].landed))+'</span></div></div>';
+    row.push(x+'</div>');}
+  if(row.length)out+='<div class="cgrid'+(row.length>1?' two':'')+'">'+row.join('')+'</div>';
+  // route map
+  if(c.routes&&c.routes.pairs&&c.routes.pairs.length){var na=Object.keys(c.routes.airports||{}).length;
+    out+='<div class="card cmapcard"><div class="cmap" id="cmap" role="img" aria-label="Map of every route flown"></div><div class="chd"><span class="eyebrow">Route map</span></div>'+
+      '<div class="maplegend">'+nf(c.routes.routes||c.routes.pairs.length)+' route'+((c.routes.routes||c.routes.pairs.length)===1?'':'s')+' · '+nf(na)+' airport'+(na===1?'':'s')+'</div></div>';}
+  // aircraft and airports
+  row=[];
+  if(c.aircraft&&c.aircraft.length)row.push('<div class="card"><div class="chd"><span class="eyebrow">Aircraft</span>'+(c.types>c.aircraft.length?'<span class="r">top '+c.aircraft.length+' of '+nf(c.types)+'</span>':'')+'</div>'+
+    c.aircraft.map(function(a){return lRow(a.name,[nf(a.flights)+' flight'+(a.flights===1?'':'s'),hm(a.airborneMin||0)+' airborne'],a.best!=null?'<b>'+fpm(a.best)+'<small>fpm</small></b>'+chip(a.grade):'<span class="cnt">—</span>');}).join('')+'</div>');
+  if(c.topAirports&&c.topAirports.length)row.push('<div class="card"><div class="chd"><span class="eyebrow">Airports</span>'+(c.airports>c.topAirports.length?'<span class="r">top '+c.topAirports.length+' of '+nf(c.airports)+'</span>':'')+'</div>'+
+    c.topAirports.map(function(a){return lRow(a.icao,[a.name,a.country],'<b>'+nf(a.visits)+'</b><span class="cnt">'+(a.visits===1?'visit':'visits')+'</span>');}).join('')+'</div>');
+  if(row.length)out+='<div class="cgrid'+(row.length>1?' two':'')+'">'+row.join('')+'</div>';
+  // records
+  var R=c.records;
+  if(R&&(R.longest||R.longestTime||R.smoothest||R.highest)){var cells=[];
+    var nw=function(t){return t?'<span style="white-space:nowrap">'+esc(t)+'</span>':'';};
+    var rs=function(r){return [esc((r.from||'?')+' → '+(r.to||'?')),esc(r.aircraft||''),nw(dateText(r.date,r.landed))].filter(Boolean).join(' · ');};
+    if(R.longest)cells.push(['Farthest',nf(R.longest.nm)+' nm',rs(R.longest)]);
+    if(R.longestTime)cells.push(['Longest',hm(R.longestTime.min),rs(R.longestTime)]);
+    if(R.smoothest)cells.push(['Smoothest',fpm(R.smoothest.rate)+' <small class="muted" style="font-size:13px;font-style:italic">fpm</small>'+chip(R.smoothest.grade),
+      [esc([R.smoothest.airport,R.smoothest.runway].filter(Boolean).join(' ')),esc(R.smoothest.aircraft||''),nw(dateText(R.smoothest.date,R.smoothest.landed))].filter(Boolean).join(' · ')]);
+    if(R.highest)cells.push(['Highest',R.highest.ft>=18000?'FL'+Math.round(R.highest.ft/100):nf(R.highest.ft)+' ft',rs(R.highest)]);
+    out+='<div class="card"><div class="chd"><span class="eyebrow">Records</span></div><div class="rgrid">'+cells.map(function(x){return '<div><div class="k">'+x[0]+'</div><div class="v">'+x[1]+'</div><div class="s">'+x[2]+'</div></div>';}).join('')+'</div></div>';}
+  // milestones: the next few, then the ones reached (newest first; six, then Show all)
+  var M=c.milestones;
+  if(M&&((M.done&&M.done.length)||(M.next&&M.next.length))){
+    var x='<div class="card"><div class="chd"><span class="eyebrow">Milestones</span>'+(M.count?'<span class="r">'+nf(M.count)+' reached</span>':'')+'</div>';
+    if(M.next&&M.next.length)x+='<div class="csub">Next</div><div class="mnext" style="margin-top:0">'+M.next.map(function(n){var p=Math.max(0,Math.min(1,n.have/n.need));
+      return '<div><div class="t"><b>'+esc(n.title)+'</b><span>'+nf(n.have)+' of '+nf(n.need)+(n.unit==='nm'?' nm':'')+'</span></div><div class="bar" role="img" aria-label="'+Math.round(p*100)+' %"><i style="width:'+(p*100).toFixed(1)+'%"></i></div></div>';}).join('')+'</div>';
+    var dn=M.done||[];
+    if(dn.length){var shown=mileOpen?dn:dn.slice(0,6);
+      x+='<div class="csub">Reached</div><div class="mdone">'+shown.map(function(m){return '<div class="mrow"><span class="ic">'+MEDAL+'</span><div class="l"><b>'+esc(m.title)+'</b><span>'+esc(m.sub||'')+'</span></div><span class="d">'+esc(dateText(m.date,m.landed))+'</span></div>';}).join('')+'</div>';
+      if(dn.length>6)x+='<button class="mmore" id="mmore" aria-expanded="'+(mileOpen?'true':'false')+'">'+(mileOpen?'Show fewer':'Show all '+nf(dn.length))+'</button>';}
+    out+=x+'</div>';}
+  return out;
+}
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#mmore');if(!b||!last||!last.career)return;
+  mileOpen=!mileOpen;careerData=null;renderCareer(last);var nb=$('mmore');if(nb)nb.focus();});
+// the last landings as bars, oldest on the left, each in its grade's colour; the dashed line is the average
+function trendSvg(t,avg){
+  var W=600,H=96,n=t.length,mx=Math.max.apply(null,t.map(function(x){return Math.abs(x.rate||0);}).concat([avg||0,60])),gap=W/n,bw=Math.max(3,Math.min(22,gap*0.62));
+  var col={butter:'#8FB996',smooth:'#8AA9C9',firm:'#D1A956',hard:'#C9784A',veryhard:'#C4524F'};
+  var y=function(v){return H-6-(H-14)*Math.min(1,Math.abs(v)/mx);};
+  var g='<line x1="0" y1="'+(H-6)+'" x2="'+W+'" y2="'+(H-6)+'" stroke="#2A3446" stroke-width="1"/>';
+  t.forEach(function(x,i){var v=Math.abs(x.rate||0),gx=(i+.5)*gap-bw/2,top=y(v),c=col[String(x.grade||gradeOf(v)).toLowerCase().replace(/\s+/g,'')]||'#848A94';
+    g+='<rect x="'+gx.toFixed(1)+'" y="'+top.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(1.5,H-6-top).toFixed(1)+'" rx="1.5" fill="'+c+'"><title>'+esc((x.to||'')+' '+fpm(x.rate)+' fpm')+'</title></rect>';});
+  if(avg)g+='<line x1="0" x2="'+W+'" y1="'+y(avg).toFixed(1)+'" y2="'+y(avg).toFixed(1)+'" stroke="#C0A062" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" role="img" aria-label="The last '+n+' landing rates, oldest first; dashed line: the average">'+g+'</svg>';
+}
+// every route flown: great circles on the same chart as the live map; the Pacific crossed the short way
+function drawCareerMap(c){
+  var host=$('cmap');if(!host||!c.routes)return;
+  if(!land){loadLand();return;}
+  var A=c.routes.airports||{},ks=Object.keys(A);if(!ks.length)return;
+  var W=host.clientWidth||340,H=host.clientHeight||280;
+  // the reference longitude: the middle of the airports, opposite the widest empty stretch of longitude
+  var lons=ks.map(function(k){return A[k][1];}).sort(function(a,b){return a-b;}),gapMax=-1,ref=0;
+  for(var i=0;i<lons.length;i++){var a=lons[i],b=i+1<lons.length?lons[i+1]:lons[0]+360;if(b-a>gapMax){gapMax=b-a;ref=b;}}
+  ref+=(360-gapMax)/2;while(ref>180)ref-=360;
+  var x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  ks.forEach(function(k){var lo=wrapLon(A[k][1],ref),yy=mercY(A[k][0]);if(lo<x0)x0=lo;if(lo>x1)x1=lo;if(yy<y0)y0=yy;if(yy>y1)y1=yy;});
+  if(x1-x0<8){var cx0=(x0+x1)/2;x0=cx0-4;x1=cx0+4;}if(y1-y0<5){var cy1=(y0+y1)/2;y0=cy1-2.5;y1=cy1+2.5;}
+  var padT=44,padB=34,padX=26;   // room for the title and the caption
+  var sc=Math.min((W-2*padX)/(x1-x0),(H-padT-padB)/(y1-y0));
+  var cx=(x0+x1)/2,cy=(y0+y1)/2,oy=(padT-padB)/2;
+  var vx0=cx-W/2/sc,vx1=cx+W/2/sc,vy0=cy-(H/2-oy)/sc,vy1=cy+(H/2+oy)/sc;
+  var X=function(lo){return (W/2+(lo-cx)*sc).toFixed(1);},Y=function(yy){return (H/2+oy-(yy-cy)*sc).toFixed(1);};
+  var g='';
+  land.forEach(function(L){var bb=L.b;if(mercY(bb[1])<vy0||mercY(bb[0])>vy1)return;
+    var mid=(bb[2]+bb[3])/2,base=Math.round((cx-mid)/360)*360;
+    [base-360,base,base+360].forEach(function(sh){if(bb[3]+sh<vx0||bb[2]+sh>vx1)return;
+      g+='<path d="'+L.r.map(function(p,j){return (j?'L':'M')+X(p[1]+sh)+' '+Y(mercY(p[0]));}).join('')+'Z"/>';});});
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><g fill="#18212F" stroke="#2E3A50" stroke-width=".8">'+g+'</g>';
+  var most=c.routes.pairs.reduce(function(m,p){return Math.max(m,p[2]);},1),lines='';
+  c.routes.pairs.slice().reverse().forEach(function(p){var a=A[p[0]],b=A[p[1]];if(!a||!b)return;
+    var pts=gc([a[0],a[1]],[b[0],b[1]],48),prev=ref,dd='';
+    pts.forEach(function(q,j){var lo=wrapLon(q[1],j?prev:ref);prev=lo;dd+=(j?'L':'M')+X(lo)+' '+Y(mercY(q[0]));});
+    var f=p[2]/most,st='" stroke-opacity="'+(0.38+0.5*f).toFixed(2)+'" stroke-width="'+(1.1+1.5*f).toFixed(2)+'"/>';
+    // the chart's edge: the same route a world to the left and right, so one that crosses the edge comes back in on the other side
+    lines+='<path d="'+dd+st+'<path transform="translate('+(360*sc).toFixed(1)+' 0)" d="'+dd+st+'<path transform="translate('+(-360*sc).toFixed(1)+' 0)" d="'+dd+st;});
+  svg+='<g fill="none" stroke="#C0A062" stroke-linecap="round" stroke-linejoin="round">'+lines+'</g>';
+  var vmax=ks.reduce(function(m,k){return Math.max(m,A[k][2]);},1),dots='',labels='',taken=[];
+  ks.forEach(function(k){var r=1.8+2.4*Math.sqrt(A[k][2]/vmax);dots+='<circle cx="'+X(wrapLon(A[k][1],ref))+'" cy="'+Y(mercY(A[k][0]))+'" r="'+r.toFixed(1)+'"/>';});
+  // the five busiest airports named, where there's room (never over another name or off the chart)
+  ks.slice(0,5).forEach(function(k){var x=+X(wrapLon(A[k][1],ref)),yy=+Y(mercY(A[k][0])),tw=k.length*7.6,tx=x,ty=yy-10;
+    if(ty<padT+4)ty=yy+20;tx=Math.max(tw/2+4,Math.min(W-tw/2-4,tx));
+    if(ty>H-padB+6||taken.some(function(t){return Math.abs(t[0]-tx)<(t[2]+tw)/2+6&&Math.abs(t[1]-ty)<16;}))return;
+    taken.push([tx,ty,tw]);
+    labels+='<text x="'+tx.toFixed(1)+'" y="'+ty.toFixed(1)+'" text-anchor="middle" fill="#EDE6D3" font-family="Georgia,serif" font-size="12" letter-spacing="1" paint-order="stroke" stroke="#0C1119" stroke-width="3">'+esc(k)+'</text>';});
+  host.innerHTML=svg+'<g fill="#EDE6D3" stroke="#0C1119" stroke-width="1.2">'+dots+'</g>'+labels+'</svg>';
 }
 function render(d){
   last=d;
@@ -593,7 +810,7 @@ function updated(){
 setInterval(function(){if(!document.hidden)updated();},1000);
 document.addEventListener('visibilitychange',function(){if(document.hidden){clearTimeout(timer);timer=0;}else{wake();animate();}});
 window.addEventListener('pageshow',wake);window.addEventListener('focus',wake);window.addEventListener('online',wake);
-var rt=0;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){if(last&&last.flying)drawMap(last);},120);});
+var rt=0,rw=window.innerWidth;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){if(last&&last.flying)drawMap(last);if(last&&last.career&&window.innerWidth!==rw)drawCareerMap(last.career);rw=window.innerWidth;},120);});
 tick();
 
 // ---------------- About / Privacy / Terms
