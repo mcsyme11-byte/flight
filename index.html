@@ -184,13 +184,33 @@ button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:poin
 .trend svg{display:block;width:100%;height:96px}
 .trend .tcap{display:flex;justify-content:space-between;gap:12px;font-size:12px;font-style:italic;color:var(--text3);margin-top:6px}
 .cmapcard{padding:0;overflow:hidden;position:relative}
-.cmapcard .chd{position:absolute;left:16px;right:16px;top:14px;pointer-events:none}
-.cmapcard::before{content:"";position:absolute;left:0;right:0;top:0;height:52px;background:linear-gradient(rgba(12,17,25,.92),rgba(12,17,25,0));pointer-events:none}
-.cmap{display:block;width:100%;height:280px;background:#0C1119}
-.cmap svg{display:block;width:100%;height:100%}
-.cmapcard .maplegend{left:16px;bottom:12px}
-@media (min-width:640px){.cmap{height:360px}}
-@media (min-width:960px){.cmap{height:440px}}
+.cmapcard .chd{position:absolute;z-index:2;left:16px;right:60px;top:14px;pointer-events:none}
+.cmapcard::before{content:"";position:absolute;z-index:1;left:0;right:0;top:0;height:52px;background:linear-gradient(rgba(12,17,25,.92),rgba(12,17,25,0));pointer-events:none}
+.cmapcard .maplegend{z-index:2;left:16px;bottom:12px;right:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmap{position:relative;display:block;width:100%;height:300px;background:#0C1119;overflow:hidden;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;outline:none}
+.cmap:focus-visible{box-shadow:inset 0 0 0 2px var(--brassDim)}
+.cmap.still{touch-action:auto;cursor:pointer}
+.cmap.drag{cursor:grabbing}
+.cmap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+@media (min-width:640px){.cmap{height:380px}}
+@media (min-width:960px){.cmap{height:460px}}
+.map-ctl{position:absolute;z-index:3;top:10px;right:10px;display:flex;flex-direction:column;border:1px solid var(--brassDim);border-radius:3px;overflow:hidden}
+.map-ctl button{width:36px;height:36px;background:#141B26;color:var(--brass);font:17px/1 var(--font);display:flex;align-items:center;justify-content:center}
+.map-ctl button+button{border-top:1px solid var(--stroke)}
+.map-ctl button:hover{background:var(--brass);color:#141B26}
+.map-ctl button:focus-visible{outline:2px solid var(--text);outline-offset:-2px}
+.cmap.still .map-ctl button:not([data-full]){display:none}
+.map-tip{position:absolute;z-index:4;pointer-events:none;background:rgba(15,21,32,.95);border:1px solid var(--brassDim);color:var(--text);font-size:13px;padding:4px 9px;white-space:nowrap;border-radius:2px}
+.map-hint{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;background:rgba(15,21,32,.92);border:1px solid var(--stroke);color:var(--text);font-size:14px;padding:10px 16px;font-style:italic;text-align:center;max-width:80%}
+/* the route map full screen (a phone or iPad opens it with a tap; the ⛶ button anywhere) */
+.cmapfull{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:#0C1119}
+.cmf-top{flex:none;display:flex;align-items:center;gap:14px;padding:calc(var(--st) + 10px) calc(var(--sr) + 16px) 10px calc(var(--sl) + 16px);background:var(--bg2);border-bottom:1px solid var(--brassDim)}
+.cmf-cap{flex:1;min-width:0;font-size:12.5px;font-style:italic;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmf-done{flex:none;height:34px;padding:0 16px;border:1px solid var(--brassDim);border-radius:3px;color:var(--brass);font:400 13px/1 var(--font);letter-spacing:.12em;text-transform:uppercase}
+.cmf-done:hover{border-color:var(--brass)}
+.cmf-body{flex:1;min-height:0;position:relative;padding:0 var(--sr) var(--sb) var(--sl)}
+.cmf-body .cmap{height:100%}
+html.cmf-open,html.cmf-open body{overflow:hidden}
 .rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;margin-top:6px}
 .rgrid > div{padding:13px 0 12px;border-top:1px solid var(--stroke);min-width:0}
 .rgrid > div:nth-child(-n+2){border-top:0}
@@ -547,8 +567,9 @@ function careerMore(c){
   if(row.length)out+='<div class="cgrid'+(row.length>1?' two':'')+'">'+row.join('')+'</div>';
   // route map
   if(c.routes&&c.routes.pairs&&c.routes.pairs.length){var na=Object.keys(c.routes.airports||{}).length;
-    out+='<div class="card cmapcard"><div class="cmap" id="cmap" role="img" aria-label="Map of every route flown"></div><div class="chd"><span class="eyebrow">Route map</span></div>'+
-      '<div class="maplegend">'+nf(c.routes.routes||c.routes.pairs.length)+' route'+((c.routes.routes||c.routes.pairs.length)===1?'':'s')+' · '+nf(na)+' airport'+(na===1?'':'s')+'</div></div>';}
+    out+='<div class="card cmapcard"><div id="cmapSlot"></div><div class="chd"><span class="eyebrow">Route map</span></div>'+
+      '<div class="maplegend">'+nf(c.routes.routes||c.routes.pairs.length)+' route'+((c.routes.routes||c.routes.pairs.length)===1?'':'s')+' · '+nf(na)+' airport'+(na===1?'':'s')+
+      ' · '+(touchOnly?'tap to explore':'drag to move · '+(/Mac/.test(navigator.platform||'')?'⌘':'Ctrl')+' + scroll to zoom')+'</div></div>';}
   // aircraft and airports
   row=[];
   if(c.aircraft&&c.aircraft.length)row.push('<div class="card"><div class="chd"><span class="eyebrow">Aircraft</span>'+(c.types>c.aircraft.length?'<span class="r">top '+c.aircraft.length+' of '+nf(c.types)+'</span>':'')+'</div>'+
@@ -593,47 +614,232 @@ function trendSvg(t,avg){
   if(avg)g+='<line x1="0" x2="'+W+'" y1="'+y(avg).toFixed(1)+'" y2="'+y(avg).toFixed(1)+'" stroke="#C0A062" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>';
   return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" role="img" aria-label="The last '+n+' landing rates, oldest first; dashed line: the average">'+g+'</svg>';
 }
-// every route flown: great circles on the same chart as the live map; the Pacific crossed the short way
-function drawCareerMap(c){
-  var host=$('cmap');if(!host||!c.routes)return;
-  if(!land){loadLand();return;}
-  var A=c.routes.airports||{},ks=Object.keys(A);if(!ks.length)return;
-  var W=host.clientWidth||340,H=host.clientHeight||280;
-  // the reference longitude: the middle of the airports, opposite the widest empty stretch of longitude
-  var lons=ks.map(function(k){return A[k][1];}).sort(function(a,b){return a-b;}),gapMax=-1,ref=0;
-  for(var i=0;i<lons.length;i++){var a=lons[i],b=i+1<lons.length?lons[i+1]:lons[0]+360;if(b-a>gapMax){gapMax=b-a;ref=b;}}
-  ref+=(360-gapMax)/2;while(ref>180)ref-=360;
-  var x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
-  ks.forEach(function(k){var lo=wrapLon(A[k][1],ref),yy=mercY(A[k][0]);if(lo<x0)x0=lo;if(lo>x1)x1=lo;if(yy<y0)y0=yy;if(yy>y1)y1=yy;});
-  if(x1-x0<8){var cx0=(x0+x1)/2;x0=cx0-4;x1=cx0+4;}if(y1-y0<5){var cy1=(y0+y1)/2;y0=cy1-2.5;y1=cy1+2.5;}
-  var padT=44,padB=34,padX=26;   // room for the title and the caption
-  var sc=Math.min((W-2*padX)/(x1-x0),(H-padT-padB)/(y1-y0));
-  var cx=(x0+x1)/2,cy=(y0+y1)/2,oy=(padT-padB)/2;
-  var vx0=cx-W/2/sc,vx1=cx+W/2/sc,vy0=cy-(H/2-oy)/sc,vy1=cy+(H/2+oy)/sc;
-  var X=function(lo){return (W/2+(lo-cx)*sc).toFixed(1);},Y=function(yy){return (H/2+oy-(yy-cy)*sc).toFixed(1);};
-  var g='';
-  land.forEach(function(L){var bb=L.b;if(mercY(bb[1])<vy0||mercY(bb[0])>vy1)return;
-    var mid=(bb[2]+bb[3])/2,base=Math.round((cx-mid)/360)*360;
-    [base-360,base,base+360].forEach(function(sh){if(bb[3]+sh<vx0||bb[2]+sh>vx1)return;
-      g+='<path d="'+L.r.map(function(p,j){return (j?'L':'M')+X(p[1]+sh)+' '+Y(mercY(p[0]));}).join('')+'Z"/>';});});
-  var svg='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><g fill="#18212F" stroke="#2E3A50" stroke-width=".8">'+g+'</g>';
-  var most=c.routes.pairs.reduce(function(m,p){return Math.max(m,p[2]);},1),lines='';
-  c.routes.pairs.slice().reverse().forEach(function(p){var a=A[p[0]],b=A[p[1]];if(!a||!b)return;
-    var pts=gc([a[0],a[1]],[b[0],b[1]],48),prev=ref,dd='';
-    pts.forEach(function(q,j){var lo=wrapLon(q[1],j?prev:ref);prev=lo;dd+=(j?'L':'M')+X(lo)+' '+Y(mercY(q[0]));});
-    var f=p[2]/most,st='" stroke-opacity="'+(0.38+0.5*f).toFixed(2)+'" stroke-width="'+(1.1+1.5*f).toFixed(2)+'"/>';
-    // the chart's edge: the same route a world to the left and right, so one that crosses the edge comes back in on the other side
-    lines+='<path d="'+dd+st+'<path transform="translate('+(360*sc).toFixed(1)+' 0)" d="'+dd+st+'<path transform="translate('+(-360*sc).toFixed(1)+' 0)" d="'+dd+st;});
-  svg+='<g fill="none" stroke="#C0A062" stroke-linecap="round" stroke-linejoin="round">'+lines+'</g>';
-  var vmax=ks.reduce(function(m,k){return Math.max(m,A[k][2]);},1),dots='',labels='',taken=[];
-  ks.forEach(function(k){var r=1.8+2.4*Math.sqrt(A[k][2]/vmax);dots+='<circle cx="'+X(wrapLon(A[k][1],ref))+'" cy="'+Y(mercY(A[k][0]))+'" r="'+r.toFixed(1)+'"/>';});
-  // the five busiest airports named, where there's room (never over another name or off the chart)
-  ks.slice(0,5).forEach(function(k){var x=+X(wrapLon(A[k][1],ref)),yy=+Y(mercY(A[k][0])),tw=k.length*7.6,tx=x,ty=yy-10;
-    if(ty<padT+4)ty=yy+20;tx=Math.max(tw/2+4,Math.min(W-tw/2-4,tx));
-    if(ty>H-padB+6||taken.some(function(t){return Math.abs(t[0]-tx)<(t[2]+tw)/2+6&&Math.abs(t[1]-ty)<16;}))return;
+// (6.3) every route flown, on a chart that moves and zooms (the Logbook site's route map, made for the share page).
+// Mercator in "map units" (the world 4096 wide), drawn on a canvas: land, a 10° grid, each route a brass great circle
+// (brighter and thicker the more it's flown), airports as cream dots by visits, the busiest named where there's room.
+// The chart repeats left and right, so a route over the date line is one unbroken line, the Pacific crossed the short
+// way. On the PC: drag to move, Ctrl/⌘ + scroll (or + −) to zoom, ⤢ back to all routes, ⛶ full screen. On a phone or
+// iPad the card is a picture that scrolls with the page; tapping it opens the map full screen (drag, pinch, Done).
+var RW=4096,CM=null;
+function rmY(la){la=Math.max(-85,Math.min(85,la));return (180-Math.log(Math.tan(Math.PI/4+la*Math.PI/360))*180/Math.PI)/360*RW;}
+function rmX(lo){return (lo+180)/360*RW;}
+function rmLat(y){return (2*Math.atan(Math.exp((180-y/RW*360)*Math.PI/180))-Math.PI/2)*180/Math.PI;}
+var rmLand=null;
+function rmLandPath(){
+  if(rmLand||!land)return rmLand;
+  var p=new Path2D();
+  land.forEach(function(L){var r=L.r,shift=false;
+    if(r.every(function(q){return q[0]<-60;}))return;                                   // Antarctica: off the bottom of the chart
+    for(var i=1;i<r.length;i++)if(Math.abs(r[i][1]-r[i-1][1])>180){shift=true;break;}   // a ring over the date line stays whole
+    r.forEach(function(q,i){var x=rmX(shift&&q[1]<0?q[1]+360:q[1]),y=rmY(q[0]);if(i)p.lineTo(x,y);else p.moveTo(x,y);});p.closePath();});
+  return rmLand=p;
+}
+// [west, east] of the smallest stretch of longitude holding them all (east may be past 180)
+function rmSpan(lons){
+  var ls=lons.map(function(x){return ((x+180)%360+360)%360-180;}).sort(function(a,b){return a-b;});
+  if(!ls.length)return [0,0];
+  var gap=-1,at=0;
+  for(var i=0;i<ls.length;i++){var g=ls.length>1?((ls[(i+1)%ls.length]-ls[i])%360+360)%360:360;if(g>gap){gap=g;at=i;}}
+  var w=ls[(at+1)%ls.length],e=ls[at];if(e<w)e+=360;return [w,e];
+}
+var touchOnly=!!(window.matchMedia&&matchMedia('(hover:none) and (pointer:coarse)').matches);
+function CareerMap(){
+  var el=document.createElement('div');el.className='cmap';
+  el.innerHTML='<canvas></canvas><div class="map-ctl"><button data-z="1.6" aria-label="Zoom in" title="Zoom in">+</button><button data-z="0.625" aria-label="Zoom out" title="Zoom out">−</button>'+
+    '<button data-z="0" aria-label="Back to every route" title="Every route">⤢</button><button data-full="1" aria-label="Full screen" title="Full screen">⛶</button></div>'+
+    '<div class="map-tip" hidden></div><div class="map-hint" hidden></div>';
+  this.el=el;this.cv=el.querySelector('canvas');this.tip=el.querySelector('.map-tip');this.hint=el.querySelector('.map-hint');
+  this.vb=null;this.home=null;this.moved=false;this.user=false;this.full=false;this.pts={};this.key=null;this.raf=0;
+  this.routes=[];this.apts=[];this.wire();
+}
+CareerMap.prototype.size=function(){return [this.el.clientWidth||340,this.el.clientHeight||280];};
+// the routes and airports (kept as they are, with the view, when nothing changed)
+CareerMap.prototype.setData=function(R){
+  var key=JSON.stringify(R);if(key===this.key)return false;this.key=key;
+  var A=R.airports||{},ks=Object.keys(A),vmax=ks.reduce(function(m,k){return Math.max(m,A[k][2]);},1);
+  this.apts=ks.map(function(k){var a=A[k];return {id:k,la:a[0],lo:a[1],n:a[2],x:rmX(a[1]),y:rmY(a[0]),r:2+2.6*Math.sqrt(a[2]/vmax)};});
+  var most=(R.pairs||[]).reduce(function(m,p){return Math.max(m,p[2]);},1);
+  this.routes=(R.pairs||[]).slice().reverse().map(function(p){var a=A[p[0]],b=A[p[1]];if(!a||!b)return null;
+    var g=gc([a[0],a[1]],[b[0],b[1]],64),prev=null,xy=[],x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+    g.forEach(function(q){var lo=q[1];if(prev!=null){while(lo-prev>180)lo-=360;while(lo-prev<-180)lo+=360;}prev=lo;
+      var x=rmX(lo),y=rmY(q[0]);xy.push([x,y]);if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;});
+    return {a:p[0],b:p[1],n:p[2],f:p[2]/most,xy:xy,pts:g,bx:[x0,x1,y0,y1]};}).filter(Boolean);
+  this.user=false;return true;
+};
+// the view holding every route, whole (routes over the pole included), with room for the title and the caption
+CareerMap.prototype.fit=function(){
+  var s=this.size(),W=s[0],H=s[1],pts=[];
+  this.routes.forEach(function(r){r.pts.forEach(function(q){pts.push(q);});});
+  this.apts.forEach(function(a){pts.push([a.la,a.lo]);});
+  if(!pts.length)return {x:rmX(-140),y:rmY(70),w:rmX(40)-rmX(-140),h:(rmX(40)-rmX(-140))*H/W};
+  var sp=rmSpan(pts.map(function(p){return p[1];})),x0=rmX(sp[0]),x1=rmX(sp[1]),y0=1e9,y1=-1e9;
+  pts.forEach(function(p){var y=rmY(p[0]);if(y<y0)y0=y;if(y>y1)y1=y;});
+  var padT=this.full?24:48,padB=this.full?24:36,padX=this.full?24:22;
+  var w=Math.max(x1-x0,60),h=Math.max(y1-y0,40);
+  var k=Math.min((W-2*padX)/w,(H-padT-padB)/h);                  // px per map unit
+  k=Math.min(k,W/60);                                             // never closer than 60 map units across (about 5°)
+  if(this.full)k=Math.max(k,0.62*H/(rmY(-60)-rmY(85)));         // full screen on a tall screen: the chart fills most of its height
+  var vw=W/k,vh=H/k,cx=(x0+x1)/2,cy=(y0+y1)/2+(padT-padB)/2/k;
+  return {x:cx-vw/2,y:cy-vh/2,w:vw,h:vh};
+};
+CareerMap.prototype.reset=function(){this.home=this.fit();this.vb={x:this.home.x,y:this.home.y,w:this.home.w,h:this.home.h};this.user=false;this.draw();};
+CareerMap.prototype.draw=function(){var me=this;if(!this.raf)this.raf=requestAnimationFrame(function(){me.raf=0;me.paint();});};
+CareerMap.prototype.paint=function(){
+  var s=this.size(),W=s[0],H=s[1];if(!W||!H)return;
+  if(!this.vb)this.reset();
+  var vb=this.vb,dpr=Math.min(2,window.devicePixelRatio||1),cv=this.cv;
+  vb.h=vb.w*H/W;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);}
+  var cx=vb.x+vb.w/2;if(cx<0||cx>=RW)vb.x-=Math.floor(cx/RW)*RW;  // past the date line: the same place on the chart's copy
+  // the chart runs from 85° N to 60° S: never far off it, and when the view is taller than it, the chart sits in the middle
+  var band=rmY(-60)-rmY(85),top=rmY(85)-vb.h*0.3,bottom=rmY(-60)+vb.h*0.3-vb.h;
+  if(vb.h<band)vb.y=Math.max(top,Math.min(bottom,vb.y));else vb.y=rmY(85)-(vb.h-band)/2;
+  var k=W/vb.w,ctx=cv.getContext('2d'),vx1=vb.x+vb.w;
+  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#0C1119';ctx.fillRect(0,0,cv.width,cv.height);
+  var land2=rmLandPath(),copies=[-RW,0,RW];
+  if(land2){ctx.fillStyle='#18212F';ctx.strokeStyle='#2E3A50';ctx.lineJoin='round';
+    copies.forEach(function(o){if(o+RW<vb.x||o>vx1)return;ctx.setTransform(dpr*k,0,0,dpr*k,(o-vb.x)*dpr*k,-vb.y*dpr*k);ctx.lineWidth=0.8/k;ctx.fill(land2);ctx.stroke(land2);});}
+  // the 10° grid
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.strokeStyle='#202B3D';ctx.lineWidth=0.7;ctx.beginPath();
+  var lo0=vb.x/RW*360-180,lo1=vx1/RW*360-180,la1=Math.min(80,rmLat(vb.y)),la0=Math.max(-60,rmLat(vb.y+vb.h));
+  var gTop=Math.max(0,(rmY(85)-vb.y)*k),gBot=Math.min(H,(rmY(-60)-vb.y)*k);
+  for(var lo=Math.ceil(lo0/10)*10;lo<=lo1;lo+=10){var gx=(rmX(lo)-vb.x)*k;ctx.moveTo(gx,gTop);ctx.lineTo(gx,gBot);}
+  for(var la=Math.ceil(la0/10)*10;la<=la1;la+=10){var gy=(rmY(la)-vb.y)*k;ctx.moveTo(0,gy);ctx.lineTo(W,gy);}
+  // (the vertical lines only between 80° N and 80° S)
+  ctx.stroke();
+  // the routes (the most flown on top), in screen pixels so they stay crisp at any zoom
+  ctx.lineCap='round';ctx.lineJoin='round';
+  var me=this;
+  copies.forEach(function(o){
+    me.routes.forEach(function(r){var b=r.bx;if(b[1]+o<vb.x||b[0]+o>vx1||b[3]<vb.y||b[2]>vb.y+vb.h)return;
+      ctx.strokeStyle='rgba(192,160,98,'+(0.42+0.5*r.f).toFixed(2)+')';ctx.lineWidth=1.2+1.6*r.f;ctx.beginPath();
+      r.xy.forEach(function(p,i){var x=(p[0]+o-vb.x)*k,y=(p[1]-vb.y)*k;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});ctx.stroke();});});
+  // the airports, and as many of the busiest names as fit without touching (more as you zoom in)
+  var shown=[];
+  copies.forEach(function(o){me.apts.forEach(function(a){var x=(a.x+o-vb.x)*k,y=(a.y-vb.y)*k;if(x<-10||x>W+10||y<-10||y>H+10)return;shown.push({a:a,x:x,y:y});});});
+  ctx.fillStyle='#EDE6D3';ctx.strokeStyle='#0C1119';ctx.lineWidth=1.3;
+  shown.forEach(function(s){ctx.beginPath();ctx.arc(s.x,s.y,s.a.r,0,Math.PI*2);ctx.fill();ctx.stroke();});
+  ctx.font='12px Georgia, "Palatino", serif';ctx.textAlign='center';ctx.textBaseline='alphabetic';
+  var taken=[],zoomed=this.home?this.home.w/vb.w:1,cap=Math.round(Math.min(40,5*zoomed*zoomed)),padT=this.full?8:40,padB=this.full?8:30;
+  shown.slice().sort(function(p,q){return q.a.n-p.a.n;}).forEach(function(s){
+    if(taken.length>=cap)return;
+    var tw=ctx.measureText(s.a.id).width+4,tx=Math.max(tw/2+4,Math.min(W-tw/2-4,s.x)),ty=s.y-s.a.r-5;
+    if(ty-12<padT)ty=s.y+s.a.r+15;
+    if(ty>H-padB)return;
+    if(taken.some(function(t){return Math.abs(t[0]-tx)<(t[2]+tw)/2+4&&Math.abs(t[1]-ty)<15;}))return;
     taken.push([tx,ty,tw]);
-    labels+='<text x="'+tx.toFixed(1)+'" y="'+ty.toFixed(1)+'" text-anchor="middle" fill="#EDE6D3" font-family="Georgia,serif" font-size="12" letter-spacing="1" paint-order="stroke" stroke="#0C1119" stroke-width="3">'+esc(k)+'</text>';});
-  host.innerHTML=svg+'<g fill="#EDE6D3" stroke="#0C1119" stroke-width="1.2">'+dots+'</g>'+labels+'</svg>';
+    ctx.lineWidth=3.2;ctx.strokeStyle='#0C1119';ctx.strokeText(s.a.id,tx,ty);ctx.fillStyle='#EDE6D3';ctx.fillText(s.a.id,tx,ty);});
+  this.labels=taken.length;
+};
+// what's under a point: the nearest airport within 12 px, else the nearest route within 9 px
+CareerMap.prototype.pick=function(px,py){
+  if(!this.vb)return null;var vb=this.vb,k=this.size()[0]/vb.w,best=null,bd=144;
+  var me=this;
+  [-RW,0,RW].forEach(function(o){me.apts.forEach(function(a){var dx=(a.x+o-vb.x)*k-px,dy=(a.y-vb.y)*k-py,d=dx*dx+dy*dy;if(d<bd){bd=d;best={apt:a};}});});
+  if(best)return best;bd=81;
+  [-RW,0,RW].forEach(function(o){me.routes.forEach(function(r){var xy=r.xy;
+    for(var i=1;i<xy.length;i++){var ax=(xy[i-1][0]+o-vb.x)*k,ay=(xy[i-1][1]-vb.y)*k,bx=(xy[i][0]+o-vb.x)*k,by=(xy[i][1]-vb.y)*k,dx=bx-ax,dy=by-ay,L=dx*dx+dy*dy;
+      var t=L?((px-ax)*dx+(py-ay)*dy)/L:0;t=t<0?0:t>1?1:t;var ex=ax+t*dx-px,ey=ay+t*dy-py,d=ex*ex+ey*ey;if(d<bd){bd=d;best={route:r};}}});});
+  return best;
+};
+CareerMap.prototype.tipFor=function(h){
+  if(h.apt){var nm=(last&&last.career&&(last.career.topAirports||[]).filter(function(t){return t.icao===h.apt.id;})[0])||null;
+    return h.apt.id+(nm&&nm.name?' · '+nm.name:'')+' · '+nf(h.apt.n)+(h.apt.n===1?' visit':' visits');}
+  return h.route.a+' – '+h.route.b+' · '+nf(h.route.n)+(h.route.n===1?' flight':' flights');
+};
+CareerMap.prototype.showTip=function(h,x,y){
+  if(!h){this.tip.hidden=true;return;}
+  var s=this.size();this.tip.textContent=this.tipFor(h);this.tip.hidden=false;
+  var tw=this.tip.offsetWidth,th=this.tip.offsetHeight;
+  this.tip.style.left=Math.max(6,Math.min(s[0]-tw-6,x+12))+'px';this.tip.style.top=Math.max(6,Math.min(s[1]-th-6,y-th-10))+'px';
+};
+CareerMap.prototype.zoomAt=function(f,cx,cy){
+  var vb=this.vb;if(!vb)return;var s=this.size(),W=s[0],H=s[1];
+  var nw=Math.max(40,Math.min(RW*1.1,vb.w/f));f=vb.w/nw;
+  var px=vb.x+cx/W*vb.w,py=vb.y+cy/H*vb.h;
+  this.vb={x:px-(px-vb.x)/f,y:py-(py-vb.y)/f,w:nw,h:nw*H/W};this.user=true;this.draw();
+};
+CareerMap.prototype.live=function(){return this.full||!touchOnly;};   // moves and zooms here (else a tap opens it full screen)
+CareerMap.prototype.wire=function(){
+  var me=this,el=this.el,hintT=0;
+  var local=function(e){var r=el.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];};
+  var hint=function(t){me.hint.textContent=t;me.hint.hidden=false;clearTimeout(hintT);hintT=setTimeout(function(){me.hint.hidden=true;},1500);};
+  el.addEventListener('wheel',function(e){
+    if(!me.live())return;
+    if(!(e.ctrlKey||e.metaKey||me.full||me.active)){hint(/Mac|iPhone|iPad/.test(navigator.platform||'')?'Hold ⌘ and scroll to zoom the map':'Hold Ctrl and scroll to zoom the map');return;}
+    e.preventDefault();var p=local(e);me.zoomAt(Math.pow(1.002,-e.deltaY*(e.deltaMode===1?33:1)),p[0],p[1]);},{passive:false});
+  document.addEventListener('pointerdown',function(e){me.active=el.contains(e.target);},true);
+  el.addEventListener('pointerdown',function(e){
+    if(e.target.closest('.map-ctl'))return;
+    if(!me.live()){me.tapAt=[e.clientX,e.clientY];return;}
+    me.pts[e.pointerId]=[e.clientX,e.clientY];var ids=Object.keys(me.pts);
+    if(ids.length===2){var a=me.pts[ids[0]],b=me.pts[ids[1]];me.pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),vb:{x:me.vb.x,y:me.vb.y,w:me.vb.w,h:me.vb.h}};me.drag=null;me.moved=true;return;}
+    me.moved=false;if(e.pointerType==='mouse')e.preventDefault();
+    me.drag={x:e.clientX,y:e.clientY,vb:{x:me.vb.x,y:me.vb.y,w:me.vb.w,h:me.vb.h}};});
+  el.addEventListener('pointermove',function(e){
+    if(!me.live())return;
+    if(me.pts[e.pointerId])me.pts[e.pointerId]=[e.clientX,e.clientY];
+    var ids=Object.keys(me.pts);
+    if(me.pinch&&ids.length===2){var a=me.pts[ids[0]],b=me.pts[ids[1]],r=el.getBoundingClientRect(),d=Math.hypot(a[0]-b[0],a[1]-b[1]);
+      me.vb={x:me.pinch.vb.x,y:me.pinch.vb.y,w:me.pinch.vb.w,h:me.pinch.vb.h};me.zoomAt(d/(me.pinch.d||1),(a[0]+b[0])/2-r.left,(a[1]+b[1])/2-r.top);return;}
+    var dr=me.drag;
+    if(!dr){if(e.pointerType==='mouse'){var p=local(e),h=me.pick(p[0],p[1]);el.style.cursor=h?'pointer':'';me.showTip(h,p[0],p[1]);}return;}
+    if(!me.moved&&Math.abs(e.clientX-dr.x)+Math.abs(e.clientY-dr.y)>4){me.moved=true;try{el.setPointerCapture(e.pointerId);}catch(x){}el.classList.add('drag');me.tip.hidden=true;}
+    if(!me.moved)return;
+    var kk=dr.vb.w/el.clientWidth;me.vb={x:dr.vb.x-(e.clientX-dr.x)*kk,y:dr.vb.y-(e.clientY-dr.y)*kk,w:dr.vb.w,h:dr.vb.h};me.user=true;me.draw();});
+  var up=function(e){
+    if(!me.live()){var t=me.tapAt;me.tapAt=null;if(t&&e.type==='pointerup'&&Math.abs(e.clientX-t[0])+Math.abs(e.clientY-t[1])<8&&!e.target.closest('.map-ctl'))openFullMap();return;}
+    delete me.pts[e.pointerId];
+    if(me.pinch&&Object.keys(me.pts).length<2){me.pinch=null;me.drag=null;el.classList.remove('drag');setTimeout(function(){me.moved=false;},0);return;}
+    var was=me.moved,d=me.drag;me.drag=null;el.classList.remove('drag');
+    if(!was&&d&&e.type==='pointerup'&&!e.target.closest('.map-ctl')){var p=local(e);me.showTip(me.pick(p[0],p[1]),p[0],p[1]);}
+    setTimeout(function(){me.moved=false;},0);};
+  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',function(e){delete me.pts[e.pointerId];me.pinch=null;me.drag=null;me.tapAt=null;el.classList.remove('drag');});
+  el.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse')me.tip.hidden=true;});
+  el.addEventListener('keydown',function(e){
+    if(!me.vb)return;var s=me.size(),st=me.vb.w*0.12,mv={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[e.key];
+    if(mv){e.preventDefault();me.vb.x+=mv[0];me.vb.y+=mv[1];me.user=true;me.draw();}
+    else if(e.key==='+'||e.key==='='){e.preventDefault();me.zoomAt(1.6,s[0]/2,s[1]/2);}
+    else if(e.key==='-'||e.key==='_'){e.preventDefault();me.zoomAt(0.625,s[0]/2,s[1]/2);}
+    else if(e.key==='0'){e.preventDefault();me.reset();}
+    else if(e.key==='Enter'&&!me.live()){e.preventDefault();openFullMap();}});
+  el.querySelectorAll('.map-ctl button').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();
+    if(b.dataset.full){if(me.full)closeFullMap();else openFullMap();return;}
+    var z=+b.dataset.z,s=me.size();if(!z)me.reset();else me.zoomAt(z,s[0]/2,s[1]/2);});});
+  el.tabIndex=0;
+};
+// full screen: the same map in its own layer over the page (Done, Esc or the ⛶ button close it)
+function openFullMap(){
+  if(!CM||CM.full)return;
+  var ov=$('cmapFull');
+  if(!ov){ov=document.createElement('div');ov.id='cmapFull';ov.className='cmapfull';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Route map');
+    ov.innerHTML='<div class="cmf-top"><span class="eyebrow">Route map</span><span class="cmf-cap" id="cmfCap"></span><button class="cmf-done" id="cmfDone">Done</button></div><div class="cmf-body" id="cmfBody"></div>';
+    document.body.appendChild(ov);$('cmfDone').addEventListener('click',closeFullMap);}
+  var R=last&&last.career&&last.career.routes,na=R?Object.keys(R.airports||{}).length:0,nr=R?(R.routes||(R.pairs||[]).length):0;
+  $('cmfCap').textContent=R?nf(nr)+' route'+(nr===1?'':'s')+' · '+nf(na)+' airport'+(na===1?'':'s'):'';
+  CM.full=true;CM.el.classList.remove('still');CM.back=CM.el.parentNode;$('cmfBody').appendChild(CM.el);ov.hidden=false;document.documentElement.classList.add('cmf-open');
+  CM.el.setAttribute('aria-label','Route map. Drag to move, pinch or plus and minus to zoom.');
+  CM.reset();setTimeout(function(){CM.reset();if(!touchOnly)$('cmfDone').focus();},60);
+}
+function closeFullMap(){
+  if(!CM||!CM.full)return;
+  var ov=$('cmapFull');CM.full=false;CM.pts={};CM.pinch=null;CM.drag=null;CM.tip.hidden=true;
+  var slot=$('cmapSlot');if(slot)slot.appendChild(CM.el);
+  if(touchOnly)CM.el.classList.add('still');
+  if(ov)ov.hidden=true;document.documentElement.classList.remove('cmf-open');
+  CM.el.setAttribute('aria-label',touchOnly?'Route map of every route flown. Tap to open it full screen.':'Route map of every route flown. Drag to move, plus and minus to zoom.');
+  CM.reset();CM.el.focus({preventScroll:true});
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&CM&&CM.full){e.preventDefault();closeFullMap();}});
+function drawCareerMap(c){
+  var slot=$('cmapSlot');if(!slot||!c.routes)return;
+  if(!land){loadLand();return;}
+  if(!CM){CM=new CareerMap();CM.el.setAttribute('role','application');
+    CM.el.setAttribute('aria-label',touchOnly?'Route map of every route flown. Tap to open it full screen.':'Route map of every route flown. Drag to move, plus and minus to zoom.');}
+  if(touchOnly&&!CM.full)CM.el.classList.add('still');
+  if(!CM.full&&CM.el.parentNode!==slot)slot.appendChild(CM.el);
+  var changed=CM.setData(c.routes);
+  if(changed||!CM.vb||!CM.user)CM.reset();else CM.draw();
 }
 function render(d){
   last=d;
