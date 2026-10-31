@@ -1,0 +1,1182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; media-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self' https://mspc.taila238a8.ts.net:8443; base-uri 'none'; form-action 'none'">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#141B26">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>Live flight</title>
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+/* Share my flight - follows docs/DESIGN.md: navy, brass and cream, serif type, thin brass rules */
+:root{
+  --bg:#141B26;--bg2:#0F1520;--card:#1A2333;--stroke:#2A3446;--brass:#C0A062;--brassDim:#7E6A45;
+  --text:#EDE6D3;--text2:#B4AFA2;--text3:#848A94;--green:#8FB996;--red:#C9675A;--amber:#D1A956;--violet:#8AA9C9;
+  --font:Georgia,"Palatino","Palatino Linotype","Book Antiqua",serif;
+  --st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px);--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px);
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;min-height:100vh;color:var(--text);font:15px/1.45 var(--font);font-variant-numeric:lining-nums tabular-nums;-webkit-font-smoothing:antialiased;
+  background:radial-gradient(800px 420px at 50% -160px,rgba(192,160,98,.10),transparent 70%),var(--bg)}
+::selection{background:rgba(192,160,98,.35)}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+.wrap{max-width:1120px;margin:0 auto;padding:calc(var(--st) + 18px) calc(var(--sr) + 16px) calc(var(--sb) + 28px) calc(var(--sl) + 16px)}
+[hidden]{display:none!important}
+
+/* header */
+.top{display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid var(--brassDim)}
+.top img{width:34px;height:34px;border-radius:50%;flex:none}
+.brand{font:400 12px/1 var(--font);letter-spacing:.32em;text-transform:uppercase;color:var(--brass)}
+.pill{margin-left:auto;display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 12px;border:1px solid var(--brassDim);border-radius:3px;
+  font:400 11px/1 var(--font);letter-spacing:.22em;text-transform:uppercase;color:var(--text2);white-space:nowrap}
+.pill{flex:none}
+.pill i{flex:none;display:block;width:7px;height:7px;border-radius:50%;background:currentColor}
+.brand{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:360px){.top{gap:10px}.brand{font-size:11px;letter-spacing:.2em}.pill{padding:0 9px;gap:6px;letter-spacing:.14em}}
+.pill.s-live{color:var(--green);border-color:rgba(143,185,150,.45)}
+.pill.s-live i{animation:ping 2s infinite}
+.pill.s-landed{color:var(--brass);border-color:var(--brassDim)}
+.pill.s-off{color:var(--text3)}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(143,185,150,.55)}70%{box-shadow:0 0 0 7px rgba(143,185,150,0)}100%{box-shadow:0 0 0 0 rgba(143,185,150,0)}}
+@media (prefers-reduced-motion:reduce){.pill.s-live i{animation:none}}
+
+/* type */
+.eyebrow{font:400 10.5px/1 var(--font);letter-spacing:.28em;text-transform:uppercase;color:var(--brass)}
+.muted{color:var(--text3)}
+.it{font-style:italic}
+
+/* cards and tiles */
+.card{background:var(--card);border:1px solid var(--stroke);border-top-color:var(--brassDim);border-radius:6px;padding:18px}
+.stack{display:grid;gap:14px;margin-top:18px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{background:var(--card);border:1px solid var(--stroke);border-top-color:var(--brassDim);border-radius:6px;padding:14px 16px;min-width:0}
+.tile .k{font:400 10.5px/1 var(--font);letter-spacing:.28em;text-transform:uppercase;color:var(--brass)}
+.tile .v{font:400 24px/1.15 var(--font);margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .s{font-size:12.5px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:4px}
+
+/* hero: callsign, route and progress */
+.hero .cs{font:400 34px/1.05 var(--font);letter-spacing:.01em;margin-top:10px}
+.hero .ac{font-style:italic;color:var(--text3);margin-top:4px}
+.route{display:grid;grid-template-columns:minmax(0,auto) minmax(48px,1fr) minmax(0,auto);align-items:center;gap:14px;margin-top:18px}
+.ap b{display:block;font:400 26px/1 var(--font);letter-spacing:.04em}
+.ap{min-width:0}
+.ap span{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;font-size:13px;line-height:1.3;font-style:italic;color:var(--text3);margin-top:5px;max-width:10.5em;overflow:hidden;overflow-wrap:anywhere}
+.ap.r{text-align:right}
+.ap.r span{margin-left:auto}
+.prog{position:relative;height:28px}
+.prog .line{position:absolute;left:0;right:0;top:13px;height:2px;background:var(--stroke)}
+.prog .fill{position:absolute;left:0;top:13px;height:2px;background:linear-gradient(90deg,var(--brassDim),var(--brass));width:0}
+.prog .plane{position:absolute;top:2px;width:24px;height:24px;margin-left:-12px;color:var(--brass);left:0;transition:left .8s ease}
+.prog .plane svg{width:24px;height:24px;transform:rotate(90deg);display:block}
+.phase{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:14px;border-top:1px solid var(--stroke)}
+.phase b{font:400 18px/1.2 var(--font)}
+.phase span{font-size:13px;color:var(--text3);font-style:italic;text-align:right}
+
+/* map */
+.mapcard{padding:0;overflow:hidden;position:relative}
+.map{display:block;width:100%;height:240px;background:#121A26}
+.map svg{display:block;width:100%;height:100%}
+.maplegend{position:absolute;left:12px;bottom:10px;font-size:11px;letter-spacing:.06em;color:var(--text3);font-style:italic;pointer-events:none}
+
+/* landed */
+.landed{display:flex;align-items:center;gap:18px}
+.landed .rate{font:400 40px/1 var(--font);white-space:nowrap}
+.landed .rate small{font-size:15px;color:var(--text3);font-style:italic;margin-left:5px}
+.landed .d{min-width:0}
+.landed .d b{display:block;font:400 17px/1.25 var(--font)}
+.landed .d span:not(.gtag){display:block;font-size:13px;color:var(--text3);font-style:italic;margin-top:4px}
+.gtag{display:inline-flex;align-items:center;height:22px;padding:0 9px;border:1px solid var(--g,var(--text3));border-radius:2px;color:var(--g,var(--text3));
+  font:italic 400 12px/1 var(--font);letter-spacing:.04em;margin-top:8px}
+.g-butter{--g:#8FB996}.g-smooth{--g:#8AA9C9}.g-firm{--g:#D1A956}.g-hard{--g:#C9784A}.g-veryhard{--g:#C4524F}
+
+/* last landing (small card, flying or not) */
+.lland .llhd{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.lland .llago{font-size:12.5px;font-style:italic;color:var(--text3);white-space:nowrap}
+.lland .llmain{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:12px}
+.lland .llmain > span{white-space:nowrap}
+.lland .llwhere{font:400 19px/1.25 var(--font);letter-spacing:.03em}
+.lland .llwhere i{font-style:normal;color:var(--text3);margin-left:12px}
+.lland .llrate{font:400 19px/1.25 var(--font)}
+.lland .llrate small{font-size:13px;color:var(--text3);font-style:italic;margin-left:4px}
+.lland .gtag{margin-top:0}
+.lland .llwhen{font-size:13px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:8px}
+.lland .llcrab{font-size:13px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:4px}   /* as on the landed card */
+.tiles.two{grid-template-columns:1fr 1fr}
+
+
+/* career (5.2): a few totals, the best landing for each aircraft class, the last few landings */
+.career .ctot{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px;border-top:1px solid var(--stroke);border-bottom:1px solid var(--stroke)}
+.career .ctot div{padding:12px 4px 11px;text-align:center;min-width:0}
+.career .ctot div+div{border-left:1px solid var(--stroke)}
+.career .ctot b{display:block;font:400 24px/1.1 var(--font);white-space:nowrap}
+.career .ctot span{display:block;font:400 10px/1 var(--font);letter-spacing:.24em;text-transform:uppercase;color:var(--text3);margin-top:7px}
+.career .csub{font:400 10.5px/1 var(--font);letter-spacing:.28em;text-transform:uppercase;color:var(--brass);margin:20px 0 4px}
+.career .crow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 14px;padding:11px 0;border-bottom:1px solid var(--stroke)}
+.career .crow:last-child{border-bottom:0;padding-bottom:2px}
+.career .crow .l{min-width:0}
+.career .crow .l b{display:block;font:400 16px/1.25 var(--font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.career .crow .l span{display:block;font-size:12.5px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:2px;overflow-wrap:anywhere}
+.career .crow .r{text-align:right;white-space:nowrap}
+.career .crow .r b{display:block;font:400 17px/1.2 var(--font)}
+.career .crow .r b small{font-size:12px;color:var(--text3);font-style:italic;margin-left:3px}
+.career .crow .r .gtag{margin-top:4px;height:20px;font-size:11.5px;padding:0 7px}
+@media (max-width:360px){.career .ctot b{font-size:21px}.career .ctot span{letter-spacing:.16em}}
+.career .ctot.long b{font-size:19px}
+@media (max-width:400px){.career .ctot.long b{font-size:16px}}
+.career .ccols > div{min-width:0}
+@media (min-width:900px){.career .ccols.two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 40px}}
+/* (6.3) on a wide screen the two lists run full width, each in two columns, so a short list leaves no gap beside a long one */
+@media (min-width:900px){.career .ccols.two.wide{display:block}
+  .career .clist{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 40px}
+  .career .clist .crow:last-child{border-bottom:0}.career .clist .crow:nth-last-child(2):nth-child(odd){border-bottom:0;padding-bottom:2px}}
+
+/* (6.3) the rest of the career: six totals, the last 30 days, landings, the route map, aircraft and airports,
+   records, milestones. Each part can be hidden by the pilot; what's hidden never reaches the page. */
+.career .ctot.six{grid-template-columns:repeat(3,minmax(0,1fr))}
+.career .ctot.six div:nth-child(3n+1){border-left:0}
+.career .ctot.six div:nth-child(n+4){border-top:1px solid var(--stroke)}
+@media (min-width:900px){.career .ctot.six{grid-template-columns:repeat(6,minmax(0,1fr))}.career .ctot.six div:nth-child(3n+1){border-left:1px solid var(--stroke)}
+  .career .ctot.six div:first-child{border-left:0}.career .ctot.six div:nth-child(n+4){border-top:0}}
+.career .cnote{font-size:12.5px;line-height:1.4;font-style:italic;color:var(--text3);margin-top:10px}
+.cgrid{display:grid;gap:14px}
+#careerMore .csub{font:400 10.5px/1 var(--font);letter-spacing:.28em;text-transform:uppercase;color:var(--brass);margin:20px 0 4px}
+@media (min-width:900px){.cgrid.two{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.cgrid > .card{min-width:0}
+.chd{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.chd .r{font-size:12.5px;font-style:italic;color:var(--text3);white-space:nowrap}
+.mini{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px;border-top:1px solid var(--stroke);border-bottom:1px solid var(--stroke)}
+.mini div{padding:11px 4px 10px;text-align:center;min-width:0}
+.mini div+div{border-left:1px solid var(--stroke)}
+.mini.six div:nth-child(4){border-left:0}
+.mini.six div:nth-child(n+4){border-top:1px solid var(--stroke)}
+.mini b{display:block;font:400 21px/1.1 var(--font);white-space:nowrap}
+.mini span{display:block;font:400 10px/1 var(--font);letter-spacing:.22em;text-transform:uppercase;color:var(--text3);margin-top:7px}
+@media (max-width:360px){.mini b{font-size:18px}.mini span{letter-spacing:.14em}}
+.lrow{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 14px;padding:11px 0;border-bottom:1px solid var(--stroke)}
+.lrow:last-child{border-bottom:0;padding-bottom:2px}
+.lrow .l{min-width:0}
+.lrow .l b{display:block;font:400 16px/1.25 var(--font);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lrow .l span{display:block;font-size:12.5px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:2px;overflow-wrap:anywhere}
+.lrow .r{text-align:right;white-space:nowrap}
+.lrow .r b{display:block;font:400 17px/1.2 var(--font)}
+.lrow .r b small{font-size:12px;color:var(--text3);font-style:italic;margin-left:3px}
+.lrow .r .gtag{margin-top:4px;height:20px;font-size:11.5px;padding:0 7px}
+.lrow .r .cnt{font-size:12.5px;font-style:italic;color:var(--text3)}
+.lavg{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px 18px;margin-top:14px}
+.lavg .big{font:400 34px/1 var(--font);white-space:nowrap}
+.lavg .big small{font-size:14px;color:var(--text3);font-style:italic;margin-left:5px}
+.lavg .what{font-size:12.5px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:6px}
+.lavg .stab{text-align:left}
+@media (min-width:480px){.lavg .stab{text-align:right}}
+.lavg .stab b{display:block;font:400 19px/1.1 var(--font)}
+.lavg .stab span{display:block;font-size:12.5px;color:var(--text3);font-style:italic;margin-top:5px}
+.gbar{display:flex;gap:2px;height:10px;margin-top:16px;border-radius:2px;overflow:hidden}
+.gbar i{display:block;min-width:3px;background:var(--g)}
+.glegend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px;font-size:12.5px;color:var(--text2)}
+.glegend span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.glegend span i{display:block;width:8px;height:8px;border-radius:50%;background:var(--g)}
+.glegend span b{font-weight:400;color:var(--text)}
+.trend{margin-top:18px}
+.trend svg{display:block;width:100%;height:96px}
+.trend .tcap{display:flex;justify-content:space-between;gap:12px;font-size:12px;font-style:italic;color:var(--text3);margin-top:6px}
+.cmapcard{padding:0;overflow:hidden;position:relative}
+.cmapcard .chd{position:absolute;z-index:2;left:16px;right:60px;top:14px;pointer-events:none}
+.cmapcard::before{content:"";position:absolute;z-index:1;left:0;right:0;top:0;height:52px;background:linear-gradient(rgba(12,17,25,.92),rgba(12,17,25,0));pointer-events:none}
+.cmapcard .maplegend{z-index:2;left:16px;bottom:12px;right:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmap{position:relative;display:block;width:100%;height:300px;background:#0C1119;overflow:hidden;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;outline:none}
+.cmap:focus-visible{box-shadow:inset 0 0 0 2px var(--brassDim)}
+.cmap.still{touch-action:auto;cursor:pointer}
+.cmap.drag{cursor:grabbing}
+.cmap canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+@media (min-width:640px){.cmap{height:380px}}
+@media (min-width:960px){.cmap{height:460px}}
+.map-ctl{position:absolute;z-index:3;top:10px;right:10px;display:flex;flex-direction:column;border:1px solid var(--brassDim);border-radius:3px;overflow:hidden}
+.map-ctl button{width:36px;height:36px;background:#141B26;color:var(--brass);font:17px/1 var(--font);display:flex;align-items:center;justify-content:center}
+.map-ctl button+button{border-top:1px solid var(--stroke)}
+.map-ctl button:hover{background:var(--brass);color:#141B26}
+.map-ctl button:focus-visible{outline:2px solid var(--text);outline-offset:-2px}
+.cmap.still .map-ctl button:not([data-full]){display:none}
+.map-tip{position:absolute;z-index:4;pointer-events:none;background:rgba(15,21,32,.95);border:1px solid var(--brassDim);color:var(--text);font-size:13px;line-height:1.45;padding:4px 9px;white-space:pre;border-radius:2px}
+.map-hint{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;background:rgba(15,21,32,.92);border:1px solid var(--stroke);color:var(--text);font-size:14px;padding:10px 16px;font-style:italic;text-align:center;max-width:80%}
+/* the route map full screen (a phone or iPad opens it with a tap; the ⛶ button anywhere) */
+.cmapfull{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;background:#0C1119}
+.cmf-top{flex:none;display:flex;align-items:center;gap:14px;padding:calc(var(--st) + 10px) calc(var(--sr) + 16px) 10px calc(var(--sl) + 16px);background:var(--bg2);border-bottom:1px solid var(--brassDim)}
+.cmf-cap{flex:1;min-width:0;font-size:12.5px;font-style:italic;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmf-done{flex:none;height:34px;padding:0 16px;border:1px solid var(--brassDim);border-radius:3px;color:var(--brass);font:400 13px/1 var(--font);letter-spacing:.12em;text-transform:uppercase}
+.cmf-done:hover{border-color:var(--brass)}
+.cmf-body{flex:1;min-height:0;position:relative;padding:0 var(--sr) var(--sb) var(--sl)}
+.cmf-body .cmap{height:100%}
+html.cmf-open,html.cmf-open body{overflow:hidden}
+.rgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 18px;margin-top:6px}
+.rgrid > div{padding:13px 0 12px;border-top:1px solid var(--stroke);min-width:0}
+.rgrid > div:nth-child(-n+2){border-top:0}
+@media (min-width:760px){.rgrid{grid-template-columns:repeat(4,minmax(0,1fr));gap:0 22px}.rgrid > div{border-top:0}.rgrid > div+div{border-left:1px solid var(--stroke);padding-left:22px}}
+.rgrid .k{font:400 10.5px/1.2 var(--font);letter-spacing:.24em;text-transform:uppercase;color:var(--brass)}
+.rgrid .v{font:400 22px/1.15 var(--font);margin-top:9px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;min-width:0}
+.rgrid .v .gtag{margin:0;height:20px;font-size:11.5px;padding:0 7px}
+.rgrid .s{font-size:12.5px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:5px;overflow-wrap:anywhere}
+.mnext{margin-top:12px}
+.mnext > div{padding:11px 0 12px;border-bottom:1px solid var(--stroke)}
+.mnext .t{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.mnext .t b{font:400 16px/1.25 var(--font);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mnext .t span{font-size:12.5px;font-style:italic;color:var(--text3);white-space:nowrap}
+.mnext .bar{height:4px;margin-top:9px;background:var(--stroke);border-radius:2px;overflow:hidden}
+.mnext .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--brassDim),var(--brass))}
+.mdone{display:grid;margin-top:4px}
+@media (min-width:900px){.mdone{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 40px}}
+.mrow{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:4px 12px;padding:11px 0;border-bottom:1px solid var(--stroke);min-width:0}
+.mrow .ic{width:22px;height:22px;color:var(--brass)}
+.mrow .ic svg{display:block;width:22px;height:22px}
+.mrow .l{min-width:0}
+.mrow .l b{display:block;font:400 16px/1.25 var(--font)}
+.mrow .l span{display:block;font-size:12.5px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:2px;overflow-wrap:anywhere}
+.mrow .d{font-size:12.5px;font-style:italic;color:var(--text3);white-space:nowrap}
+.mmore{display:block;margin:14px auto 0;color:var(--brass);font-size:13px;letter-spacing:.06em;padding:8px 12px;border:1px solid var(--brassDim);border-radius:3px}
+.mmore:hover{border-color:var(--brass)}
+
+/* idle / off / unreachable */
+.msg{text-align:center;padding:34px 20px}
+.msg h1{font:400 28px/1.15 var(--font);margin:14px 0 8px}
+.msg p{margin:0 auto;max-width:30em;color:var(--text2);font-style:italic}
+.lastroute{font:400 24px/1.1 var(--font);letter-spacing:.03em;margin-top:10px}
+.lastsub{font-size:13px;color:var(--text3);font-style:italic;margin-top:5px}
+
+/* footer */
+.foot{margin-top:26px;padding-top:16px;border-top:1px solid var(--stroke);display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;
+  font-size:12.5px;color:var(--text3)}
+.foot .links{display:flex;gap:6px;align-items:center}
+.foot .links button{color:var(--brass);font-size:12.5px;padding:4px 2px}
+.foot .links button:hover{text-decoration:underline}
+.foot .note{font-style:italic}
+
+/* wider screens: map and details side by side */
+@media (min-width:640px){.tiles{grid-template-columns:repeat(4,minmax(0,1fr))}.tiles.two{grid-template-columns:1fr 1fr}.map{height:320px}.hero .cs{font-size:40px}}
+@media (min-width:640px){.ap span{max-width:16em}}
+@media (min-width:960px){.map{height:400px}}
+@media (max-width:400px){.landed{flex-direction:column;align-items:flex-start;gap:12px}}
+@media (max-width:360px){.ap b{font-size:22px}.hero .cs{font-size:30px}.tile .v{font-size:21px}.landed .rate{font-size:34px}.route{gap:10px}.lland .llwhere,.lland .llrate{font-size:18px}}
+
+/* ---------- Apple-style sheet: About / Privacy / Terms */
+.pscrim{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .35s}
+.pscrim.open{opacity:1;pointer-events:auto}
+.psheet{position:fixed;left:50%;bottom:0;width:min(680px,100%);height:min(88vh,860px);transform:translate(-50%,105%);z-index:61;display:flex;flex-direction:column;
+  background:#1c1c1e;color:#fff;border-radius:13px 13px 0 0;box-shadow:0 -10px 40px rgba(0,0,0,.5);transition:transform .5s cubic-bezier(.32,.72,0,1);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+.psheet.open{transform:translate(-50%,0)}
+@media (min-width:760px){.psheet{bottom:auto;top:50%;border-radius:13px;transform:translate(-50%,-40%) scale(.98);opacity:0;pointer-events:none;transition:transform .35s,opacity .25s}
+  .psheet.open{transform:translate(-50%,-50%);opacity:1;pointer-events:auto}}
+.pnav{flex:none;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:14px 16px 10px;border-bottom:.5px solid rgba(84,84,88,.6)}
+.pnav .r{justify-self:end}
+.pdone{background:none;border:0;color:#0a84ff;font:600 17px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;cursor:pointer;padding:6px 0 6px 10px}
+.pseg{display:flex;background:rgba(118,118,128,.24);border-radius:9px;padding:2px;gap:2px}
+.pseg button{min-width:76px;padding:0 14px;height:28px;border:0;border-radius:7px;background:none;color:#fff;font:500 13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;cursor:pointer}
+.pseg button.sel{background:#636366;font-weight:600}
+@media (max-width:520px){.pnav{grid-template-columns:0 1fr auto;gap:10px;padding:12px 12px 10px}
+  .pseg{justify-self:stretch}.pseg button{flex:1;min-width:0;padding:0 4px;white-space:nowrap;font-size:12.5px}}
+@media (max-width:400px){.pnav{gap:8px;padding:12px 10px 10px}.pseg button{font-size:11.5px;padding:0 2px;letter-spacing:-.01em}.pdone{font-size:16px;padding-left:4px}}
+@media (max-width:340px){.pseg button{font-size:10.5px;padding:0 1px}.pnav{gap:6px}}
+.pbody{flex:1;min-height:0;overflow-y:auto;padding:18px 22px 30px}
+.pbody h1{font:700 32px/1.12 -apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;margin:4px 0 6px;letter-spacing:.01em}
+.pbody .eff{color:rgba(235,235,245,.6);font-size:15px;margin:0 0 20px}
+.pbody h2{all:unset;display:block;font:600 19px/1.25 -apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;margin:26px 0 8px}
+.pbody p,.pbody li{font-size:16px;line-height:1.45;color:rgba(235,235,245,.86);margin:0 0 10px}
+.pbody ul{margin:0 0 10px;padding-left:22px}
+.pbody b{color:#fff;font-weight:600}
+.pbody .lbl{background:#2c2c2e;border-radius:12px;padding:16px;margin:4px 0 8px;display:flex;gap:14px;align-items:flex-start}
+.pbody .lbl .ic{flex:none;width:44px;height:44px;border-radius:50%;background:rgba(10,132,255,.18);display:grid;place-items:center;color:#0a84ff;font-size:22px}
+.pbody .lbl b{display:block;font-size:17px;margin-bottom:3px}
+.pbody .lbl span{display:block;font-size:15px;line-height:1.38;color:rgba(235,235,245,.6)}
+.pbody .grp{background:#2c2c2e;border-radius:12px;margin:6px 0 10px;overflow:hidden}
+.pbody details.rel{background:#2c2c2e;border-radius:12px;margin:0 0 8px;overflow:hidden}
+.pbody details.rel summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:13px 16px;font-size:16px}
+.pbody details.rel summary::-webkit-details-marker{display:none}
+.pbody details.rel summary::after{content:"";margin-left:auto;width:8px;height:8px;border-right:2px solid rgba(235,235,245,.45);border-bottom:2px solid rgba(235,235,245,.45);transform:rotate(45deg) translateY(-2px);transition:transform .2s}
+.pbody details.rel[open] summary::after{transform:rotate(225deg) translateY(-2px)}
+.pbody details.rel summary span{color:rgba(235,235,245,.6);font-size:14px}
+.pbody details.rel ul{margin:0;padding:0 16px 12px 38px}
+.pbody details.rel li{font-size:15px;color:rgba(235,235,245,.78)}
+.pbody p.cl{display:flex;gap:10px}
+.pbody p.cl .n{flex:none;min-width:30px;color:rgba(235,235,245,.6);font-variant-numeric:tabular-nums}
+.pbody p.caps{font-size:13.5px;line-height:1.55;letter-spacing:.01em;color:rgba(235,235,245,.78)}
+.pbody .grp a{display:block;color:#0a84ff;text-decoration:none;margin-top:2px}
+.pbody .grp div{padding:12px 16px;font-size:15px;line-height:1.4;color:rgba(235,235,245,.86)}
+.pbody .grp div+div{border-top:.5px solid rgba(84,84,88,.6)}
+.pbody .grp div b{display:block;font-size:12px;letter-spacing:.03em;color:rgba(235,235,245,.6);font-weight:500;margin-bottom:2px;text-transform:uppercase}
+
+.psheet:not(.open){visibility:hidden;transition:transform .5s cubic-bezier(.32,.72,0,1),opacity .25s,visibility 0s linear .5s}
+.pscrim:not(.open){visibility:hidden;transition:opacity .35s,visibility 0s linear .35s}
+.pbody .doc{max-width:620px;margin:0 auto}
+.pbody .foot{display:block;margin-top:26px;padding:0;border:0;font-size:13px;color:rgba(235,235,245,.45);text-align:center;line-height:1.4}
+/* (Logbook 4.6) Landing videos: the landings the pilot shared */
+.lvid{padding:18px}
+.lvid.flash{border-color:var(--brass);transition:border-color .6s}
+.lv-body{display:grid;gap:14px;margin-top:14px}
+@media (min-width:900px){.lv-body{grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:20px;align-items:start}}
+.lv-stage{position:relative;background:#0C1119;border:1px solid var(--stroke);aspect-ratio:16/9;max-width:100%;overflow:hidden}
+.lv-stage video{display:block;width:100%;height:100%;object-fit:contain;background:#0C1119}
+.lv-stage.tall{aspect-ratio:9/16;max-height:72vh;margin:0 auto}
+.lv-now{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:12px}
+.lv-now .l{min-width:0}
+.lv-where{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.lv-where > span{white-space:nowrap}
+.lv-where .w{font:400 19px/1.25 var(--font);letter-spacing:.03em}
+.lv-where .w i{font-style:normal;color:var(--text3);margin-left:12px}
+.lv-where .rt{font:400 19px/1.25 var(--font)}
+.lv-where .rt small{font-size:13px;color:var(--text3);font-style:italic;margin-left:4px}
+.lv-sub{font-size:13px;line-height:1.35;color:var(--text3);font-style:italic;margin-top:6px}
+.lv-share{all:unset;box-sizing:border-box;cursor:pointer;flex:none;display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 14px;border:1px solid var(--brassDim);color:var(--brass);
+  font:400 11px/1 var(--font);letter-spacing:.22em;text-transform:uppercase;white-space:nowrap}
+.lv-share svg{width:16px;height:16px;flex:none}
+.lv-share:hover,.lv-share:focus-visible{border-color:var(--brass)}
+.lv-link{margin-top:10px;font:12.5px/1.4 ui-monospace,"SF Mono",Menlo,Consolas,monospace;color:var(--text);border:1px solid var(--stroke);padding:8px 10px;overflow-wrap:anywhere;user-select:all}
+.lv-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (min-width:560px){.lv-list{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (min-width:900px){.lv-list{grid-template-columns:minmax(0,1fr);gap:0}}
+.lv-th{all:unset;box-sizing:border-box;cursor:pointer;display:grid;gap:6px;min-width:0}
+.lv-th .im{position:relative;display:block;aspect-ratio:16/9;background:#0C1119 center/cover;border:1px solid var(--stroke)}
+.lv-th[aria-pressed="true"] .im{border-color:var(--brass);box-shadow:inset 0 0 0 1px var(--brass)}
+.lv-th:hover .im,.lv-th:focus-visible .im{border-color:var(--brass)}
+.lv-th .pl{position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:rgba(15,21,32,.72);border:1px solid rgba(192,160,98,.7);display:flex;align-items:center;justify-content:center;color:var(--brass)}
+.lv-th .pl svg{width:14px;height:14px;margin-left:2px}
+.lv-th .du{position:absolute;right:6px;bottom:6px;font-size:11px;padding:1px 5px;background:rgba(15,21,32,.8);color:var(--text);font-variant-numeric:lining-nums tabular-nums}
+.lv-th .cap{display:block;min-width:0}
+.lv-th .cap b{display:block;font-weight:400;font-size:14px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lv-th .cap b small{color:var(--text3);font-style:italic;font-size:12px;margin-left:6px}
+.lv-th .cap span{display:block;font-size:12px;color:var(--text3);font-style:italic;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (min-width:900px){
+  .lv-th{grid-template-columns:120px minmax(0,1fr);gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--stroke)}
+  .lv-th:first-child{padding-top:0;border-top:0}
+  .lv-th .pl{width:26px;height:26px;margin:-13px 0 0 -13px}.lv-th .pl svg{width:11px;height:11px}
+}
+.lv-more{all:unset;box-sizing:border-box;cursor:pointer;display:block;width:100%;text-align:center;margin-top:12px;height:40px;line-height:38px;border:1px solid var(--brassDim);color:var(--brass);
+  font:400 11px/38px var(--font);letter-spacing:.22em;text-transform:uppercase}
+.llwatch{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:8px;margin-top:12px;color:var(--brass);font:400 11px/1 var(--font);letter-spacing:.22em;text-transform:uppercase}
+.llwatch svg{width:12px;height:12px}
+.llwatch:hover,.llwatch:focus-visible{color:#E2C88E}
+@media (max-width:559px){.lv-now{flex-direction:column;align-items:stretch;gap:12px}.lv-share{width:100%;justify-content:center;height:46px}}
+.lv-th .im.nopic{background:linear-gradient(160deg,#1E2A3C,#0C1119)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <img src="emblem-96.png" alt="">
+    <div class="brand">Live flight</div>
+    <span class="pill s-off" id="pill"><i></i><span id="pillTxt">Loading</span></span>
+  </header>
+
+  <main id="main" aria-live="polite">
+    <!-- flying -->
+    <section id="vFly" hidden>
+      <div class="stack">
+        <div class="card hero">
+          <div class="eyebrow" id="eyebrow">Flight</div>
+          <div class="cs" id="cs"></div>
+          <div class="ac" id="ac"></div>
+          <div class="route">
+            <div class="ap"><b id="depIcao"></b><span id="depName"></span></div>
+            <div class="prog" aria-hidden="true"><div class="line"></div><div class="fill" id="fill"></div>
+              <span class="plane" id="pplane"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2c.7 0 1.2.9 1.2 2.2V9l7.8 4.3v1.9l-7.8-2.3v4.9l2.3 1.7v1.5L12 20.2 8.5 21.2v-1.5l2.3-1.7v-4.9L3 15.2v-1.9L10.8 9V4.2C10.8 2.9 11.3 2 12 2z"/></svg></span></div>
+            <div class="ap r"><b id="arrIcao"></b><span id="arrName"></span></div>
+          </div>
+          <div class="phase"><b id="phase"></b><span id="progTxt"></span></div>
+        </div>
+        <div class="card" id="landedCard" hidden><div class="landed"><div class="rate" id="ldRate"></div><div class="d"><b id="ldWhere"></b><span id="ldWhen"></span><span id="ldCrab" hidden></span><span class="gtag" id="ldGrade"></span></div></div></div>
+        <div class="stack two" style="margin-top:0">
+          <div class="card mapcard"><div class="map" id="map" role="img" aria-label="Map of the flight"></div><div class="maplegend" id="mapLegend"></div></div>
+          <div class="tiles" id="tiles"></div>
+        </div>
+        <div id="llFly" hidden></div>
+        <div id="lvFly" hidden></div>
+      </div>
+    </section>
+
+    <!-- not flying: last flight -->
+    <section id="vIdle" hidden>
+      <div class="stack">
+        <div class="card msg"><div class="eyebrow">Live flight</div><h1>Not flying right now</h1><p>This page updates on its own. When the next flight starts, it will appear here.</p></div>
+        <div id="llIdle" hidden></div>
+        <div id="lvIdle" hidden></div>
+        <div class="card" id="lastCard" hidden>
+          <div class="eyebrow">Last flight</div>
+          <div class="lastroute" id="lastRoute"></div>
+          <div class="lastsub" id="lastSub"></div>
+          <div class="tiles" id="lastTiles" style="margin-top:16px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- (5.2) the pilot's career, flying or not, when they chose to show it -->
+    <section id="vCareer" hidden><div class="stack"><div class="card career" id="career"></div><div class="stack" id="careerMore" style="margin-top:0"></div></div></section>
+
+    <!-- sharing switched off -->
+    <section id="vOff" hidden>
+      <div class="stack"><div class="card msg"><div class="eyebrow">Live flight</div><h1>Not sharing right now</h1><p>The pilot has turned off sharing. This page will show the flight again when sharing is back on.</p></div></div>
+    </section>
+
+    <!-- can't reach the pilot's computer -->
+    <section id="vDown" hidden>
+      <div class="stack"><div class="card msg"><div class="eyebrow">Live flight</div><h1>Can't reach the flight</h1><p>The pilot's computer isn't answering right now. This page keeps trying on its own.</p></div></div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span class="note">A simulated flight · <span id="upd">Updating…</span></span>
+    <span class="links"><button data-doc="about">About</button>·<button data-doc="privacy">Privacy</button>·<button data-doc="terms">Terms</button></span>
+  </footer>
+</div>
+
+<div class="pscrim" id="pscrim"></div>
+<div class="psheet" id="psheet" role="dialog" aria-modal="true" aria-label="About, Privacy Policy and Terms of Use">
+  <div class="pnav"><span></span><div class="pseg" id="pseg"><button data-doc="about">About</button><button data-doc="privacy">Privacy</button><button data-doc="terms">Terms</button></div>
+    <span class="r"><button class="pdone" id="pdone">Done</button></span></div>
+  <div class="pbody" id="pbody"></div>
+</div>
+
+<script>
+"use strict";
+var LEGAL={"about": "<h1>About this page<\/h1><p class=\"eff\">Shared with Logbook<\/p><p>This page shows a flight in Microsoft Flight Simulator, shared by the pilot with Logbook. It updates on its own while the pilot is flying. If the pilot chose to, it also shows videos of their landings, their career and their recent landings.<\/p><div class=\"lbl\"><span class=\"ic\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"m9 12 2 2 4-4\"/><\/svg><\/span><div><b>A simulated flight<\/b><span>Everything on this page comes from a flight simulator. It is not a real aircraft.<\/span><\/div><\/div><h2>Data and credits<\/h2><div class=\"grp\"><div><b>Flight data<\/b>The pilot’s simulator, through Logbook, and the VATSIM network.<\/div><div><b>Landing videos<\/b>Recorded in the pilot’s simulator with OBS Studio.<\/div><div><b>Airports<\/b>VATSIM Spy data project and OurAirports.<\/div><div><b>Map<\/b>Natural Earth (naturalearthdata.com), public domain.<\/div><div><b>Delivered by<\/b>Tailscale Funnel, from the pilot’s own computer, and, for the always-on copy, GitHub Pages.<\/div><\/div><h2>Contact<\/h2><div class=\"grp\"><div><b>Developer<\/b>Malcolm Syme<\/div><div><b>Email<\/b><a href=\"mailto:mcsyme11@gmail.com\">mcsyme11@gmail.com<\/a><\/div><\/div><p class=\"foot\">Logbook is an independent project and is not made by, endorsed by or affiliated with VATSIM, the developer of vPilot, Microsoft, OBS Studio, Tailscale, GitHub or Apple.<br>© 2026 Malcolm Syme. All rights reserved.<\/p>", "privacy": "<h1>Privacy Policy<\/h1><p class=\"eff\">Effective October 26, 2026<\/p><div class=\"lbl\"><span class=\"ic\"><svg viewBox=\"0 0 24 24\" width=\"24\" height=\"24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.9\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z\"/><path d=\"m9 12 2 2 4-4\"/><\/svg><\/span><div><b>Data Not Collected<\/b><span>This page does not collect any information about you.<\/span><\/div><\/div><p>This Privacy Policy describes how this share page, provided by Logbook (the “Software”), developed by Malcolm Syme (the “Developer”), handles information.<\/p><h2>1. Information We Collect<\/h2><p>The Software does not collect, store or share any information about people who view this page. The page uses no cookies, accounts, advertising, analytics or tracking.<\/p><h2>2. What This Page Shows<\/h2><p>This page shows simulated flight information that the pilot has chosen to share: callsign, aircraft type, airports, position, altitude, speed, heading, flight phase, estimated arrival, landing details, a summary of the pilot’s most recent logged flight, videos of the landings the pilot chose to share and, if the pilot chose to show it, a summary of their career: totals, landings, a map of their routes, their aircraft and airports, records and milestones.<\/p><h2>3. Third-Party Services<\/h2><p>The page is delivered from the pilot’s computer by <b>Tailscale<\/b> (Tailscale Funnel), or, for the always-on copy, by <b>GitHub Pages<\/b>; the always-on copy also asks the pilot’s computer for the live flight through Tailscale Funnel, and landing videos play from GitHub Pages. Like any website, delivering it involves your device’s IP address, which Tailscale and GitHub process under their own privacy policies. The Developer does not receive it.<\/p><h2>4. Children’s Privacy<\/h2><p>The Software does not collect personal information from anyone, including children.<\/p><h2>5. Changes to This Policy<\/h2><p>If the way this page handles information changes, this Privacy Policy will be updated and the effective date at the top will change.<\/p><h2>6. Contact<\/h2><p>Questions about this Privacy Policy may be directed to the Developer:<\/p><div class=\"grp\"><div><b>Developer<\/b>Malcolm Syme<\/div><div><b>Email<\/b><a href=\"mailto:mcsyme11@gmail.com\">mcsyme11@gmail.com<\/a><\/div><\/div><p class=\"foot\">© 2026 Malcolm Syme. All rights reserved.<\/p>", "terms": "<h1>Terms of Use<\/h1><p class=\"eff\">Effective October 26, 2026<\/p><p>These Terms of Use (the “Terms”) govern your use of this share page, provided by Logbook (the “Software”), developed by Malcolm Syme (the “Developer”). By viewing this page, you agree to these Terms.<\/p><h2>1. Simulation Only<\/h2><p>This page shows information from a flight simulator. It does not show a real aircraft and must not be used for any real-world aviation, navigation or other purpose.<\/p><h2>2. Accuracy and Availability<\/h2><p>Information on this page may be delayed, approximate or unavailable. The live flight is only available while the pilot’s computer is running and sharing is turned on; the always-on copy shows the most recent information the pilot shared.<\/p><h2>3. Disclaimer of Warranties<\/h2><p class=\"caps\">THE SOFTWARE IS PROVIDED “AS IS” AND “AS AVAILABLE”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY AND NON-INFRINGEMENT. THE DEVELOPER DOES NOT WARRANT THAT THE SOFTWARE WILL BE UNINTERRUPTED, ERROR-FREE OR FREE OF HARMFUL COMPONENTS.<\/p><h2>4. Limitation of Liability<\/h2><p class=\"caps\">TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE DEVELOPER SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL OR EXEMPLARY DAMAGES, OR FOR ANY LOSS OF DATA, ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF, OR INABILITY TO USE, THE SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. SOME JURISDICTIONS DO NOT ALLOW THE EXCLUSION OR LIMITATION OF CERTAIN DAMAGES, SO SOME OF THE ABOVE MAY NOT APPLY TO YOU.<\/p><h2>5. Trademarks<\/h2><p>VATSIM, vPilot, Microsoft Flight Simulator, OBS Studio, Tailscale, GitHub and other names mentioned are trademarks of their respective owners, used for identification only. This page is not affiliated with or endorsed by them.<\/p><h2>6. Governing Law<\/h2><p>These Terms are governed by and construed in accordance with the laws of the Province of Alberta and the federal laws of Canada applicable therein, without regard to conflict-of-law principles.<\/p><h2>7. Contact<\/h2><p>Questions about these Terms may be directed to the Developer:<\/p><div class=\"grp\"><div><b>Developer<\/b>Malcolm Syme<\/div><div><b>Email<\/b><a href=\"mailto:mcsyme11@gmail.com\">mcsyme11@gmail.com<\/a><\/div><\/div><p class=\"foot\">© 2026 Malcolm Syme. All rights reserved.<\/p>"};
+// (5.2) on the always-on page (GitHub Pages) the plugin fills this in: {snap:'data.json', live:'https://<pc>.ts.net:8443/'}.
+// Served from the PC itself it stays null, and the page asks its own server.
+var CFG={"snap": "data.json", "live": "https://mspc.taila238a8.ts.net:8443/"};
+var $=function(id){return document.getElementById(id);};
+var esc=function(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+var nf=function(n){return Math.round(n).toLocaleString();};
+var pad=function(n){return (n<10?'0':'')+n;};
+function clock(d){return d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
+// (Logbook 4.6) the time at the arrival, from its time zone: {t: '6:50 PM', z: 'MDT'} (null if the browser can't)
+function zoneClock(ms,zone){try{var d=new Date(ms),t=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit',timeZone:zone});
+  var z=(new Intl.DateTimeFormat('en-US',{timeZone:zone,timeZoneName:'short'}).formatToParts(d).filter(function(p){return p.type==='timeZoneName';})[0]||{}).value||'';
+  return {t:t,z:z};}catch(e){return null;}}
+function destClock(ms,off){try{return new Date(ms+off*60000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',timeZone:'UTC'});}catch(e){return null;}}
+function dur(m){m=Math.max(0,Math.round(m));var h=Math.floor(m/60),r=m%60;return h?(h+' h'+(r?' '+r+' m':'')):r+' m';}
+function hm(m){m=Math.round(m);return Math.floor(m/60)+':'+pad(m%60);}
+function utcLabel(off){var a=Math.abs(off),h=Math.floor(a/60),m=a%60;return 'UTC'+(off<0?'−':'+')+h+(m?':'+pad(m):'');}
+function gradeCls(g){return 'g-'+String(g||'').toLowerCase().replace(/\s+/g,'');}
+function fpm(r){if(r==null)return '—';var n=Math.round(Math.abs(r));return n?'−'+n.toLocaleString():'0';}
+function tile(k,v,s){return '<div class="tile"><div class="k">'+k+'</div><div class="v">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>';}
+
+// ---------------- map: coastlines + route + plane (Mercator, date-line safe)
+var land=null,landLoading=null;
+function bbox(r){var a=90,b=-90,c=1e9,d=-1e9;for(var i=0;i<r.length;i++){var la=r[i][0],lo=r[i][1];if(la<a)a=la;if(la>b)b=la;if(lo<c)c=lo;if(lo>d)d=lo;}return [a,b,c,d];}
+function mercY(lat){lat=Math.max(-84,Math.min(84,lat));return Math.log(Math.tan(Math.PI/4+lat*Math.PI/360))*180/Math.PI;}
+function wrapLon(lon,ref){while(lon-ref>180)lon-=360;while(lon-ref<-180)lon+=360;return lon;}
+function loadLand(){
+  if(!landLoading)landLoading=fetch('land.json').then(function(r){return r.json();}).then(function(j){land=j.map(function(r){return {r:r,b:bbox(r)};});if(last&&last.flying)drawMap(last);if(last&&last.career)drawCareerMap(last.career);})
+    .catch(function(){landLoading=null;});
+}
+function gc(a,b,n){   // great circle from a to b ([lat,lon]), n steps
+  var R=Math.PI/180,la1=a[0]*R,lo1=a[1]*R,la2=b[0]*R,lo2=b[1]*R;
+  var d=2*Math.asin(Math.sqrt(Math.pow(Math.sin((la2-la1)/2),2)+Math.cos(la1)*Math.cos(la2)*Math.pow(Math.sin((lo2-lo1)/2),2)));
+  if(d<1e-6)return [a,b];var out=[];
+  for(var i=0;i<=n;i++){var f=i/n,A=Math.sin((1-f)*d)/Math.sin(d),B=Math.sin(f*d)/Math.sin(d);
+    var x=A*Math.cos(la1)*Math.cos(lo1)+B*Math.cos(la2)*Math.cos(lo2),y=A*Math.cos(la1)*Math.sin(lo1)+B*Math.cos(la2)*Math.sin(lo2),z=A*Math.sin(la1)+B*Math.sin(la2);
+    out.push([Math.atan2(z,Math.sqrt(x*x+y*y))/R,Math.atan2(y,x)/R]);}
+  return out;
+}
+function drawMap(d){
+  var host=$('map');if(!host)return;
+  var W=host.clientWidth||340,H=host.clientHeight||240;
+  var dep=d.dep&&d.dep.lat!=null?[d.dep.lat,d.dep.lon]:null,arr=d.arr&&d.arr.lat!=null?[d.arr.lat,d.arr.lon]:null,pos=d.pos?[d.pos.lat,d.pos.lon]:null;
+  // no destination (offline, no flight plan): the line it has flown from the airport it left, straight (great circle)
+  var flownOnly=!arr&&dep&&pos&&!(d.route&&d.route.length>1);
+  var route=d.route&&d.route.length>1?d.route:(dep&&arr?gc(dep,arr,96):(flownOnly?gc(dep,pos,48):null));
+  // split the route at the plane: flown part solid, the rest dashed
+  var cut=-1;
+  if(route&&pos){var best=1e18;route.forEach(function(p,i){var dl=p[0]-pos[0],dn=wrapLon(p[1],pos[1])-pos[1],q=dl*dl+dn*dn*Math.pow(Math.cos(pos[0]*Math.PI/180),2);if(q<best){best=q;cut=i;}});}
+  var ref=route?route[0][1]:(pos?pos[1]:0),prev=ref,x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  function P(p){var lo=wrapLon(p[1],prev),y=mercY(p[0]);prev=lo;if(lo<x0)x0=lo;if(lo>x1)x1=lo;if(y<y0)y0=y;if(y>y1)y1=y;return [lo,y];}
+  var pts=route?route.map(P):[];
+  var pp=null;if(pos){prev=pts.length?pts[Math.max(0,cut)][0]:pos[1];pp=P(pos);}
+  if(x1-x0<4){var c=(x0+x1)/2;x0=c-2;x1=c+2;}if(y1-y0<3){var cy0=(y0+y1)/2;y0=cy0-1.5;y1=cy0+1.5;}
+  var cx=(x0+x1)/2,cy=(y0+y1)/2,sc=Math.min(W/((x1-x0)*(flownOnly?1.5:1.18)+1),H/((y1-y0)*(flownOnly?1.75:1.25)+1));   // (no plan: the aircraft is at the line's end, kept clear of the edges and the caption)
+  var vx0=cx-W/2/sc,vx1=cx+W/2/sc,vy0=cy-H/2/sc,vy1=cy+H/2/sc;
+  var X=function(lo){return (W/2+(lo-cx)*sc).toFixed(1);},Y=function(y){return (H/2-(y-cy)*sc).toFixed(1);};
+  var g='';
+  (land||[]).forEach(function(L){var b=L.b;if(mercY(b[1])<vy0||mercY(b[0])>vy1)return;
+    var mid=(b[2]+b[3])/2,base=Math.round((cx-mid)/360)*360;
+    [base-360,base,base+360].forEach(function(sh){if(b[3]+sh<vx0||b[2]+sh>vx1)return;
+      g+='<path d="'+L.r.map(function(p,i){return (i?'L':'M')+X(p[1]+sh)+' '+Y(mercY(p[0]));}).join('')+'Z"/>';});});
+  var svg='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><g fill="#1F2A3D" stroke="#3C4A63" stroke-width=".8">'+g+'</g>';
+  if(pts.length>1){
+    var line=function(a){return a.map(function(p,i){return (i?'L':'M')+X(p[0])+' '+Y(p[1]);}).join(' ');};
+    var done=cut>=0?pts.slice(0,cut+1).concat(pp?[pp]:[]):[],todo=cut>=0?(pp?[pp]:[]).concat(pts.slice(cut+1)):pts;
+    if(todo.length>1)svg+='<path d="'+line(todo)+'" fill="none" stroke="#C0A062" stroke-opacity=".55" stroke-width="1.8" stroke-dasharray="5 5" stroke-linecap="round"/>';
+    if(done.length>1)svg+='<path d="'+line(done)+'" fill="none" stroke="#C0A062" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" style="filter:drop-shadow(0 0 4px rgba(192,160,98,.6))"/>';
+    var a=pts[0],b=pts[pts.length-1];
+    svg+='<circle cx="'+X(a[0])+'" cy="'+Y(a[1])+'" r="4" fill="#0C1119" stroke="#EDE6D3" stroke-width="2"/>'+(flownOnly?'':'<circle cx="'+X(b[0])+'" cy="'+Y(b[1])+'" r="4.5" fill="#C0A062"/>');
+    var av=pp?[+X(pp[0]),+Y(pp[1])]:null;
+    svg+=label(a,d.dep&&d.dep.icao,'#EDE6D3',W,H,X,Y,av)+(flownOnly?'':label(b,d.arr&&d.arr.icao,'#C0A062',W,H,X,Y,av));
+  }
+  if(pp){var hdg=d.pos.hdg||0;
+    svg+='<g id="mPlane" transform="translate('+X(pp[0])+' '+Y(pp[1])+') rotate('+hdg+')"><circle r="15" fill="rgba(192,160,98,.16)"/>'+
+      '<path transform="translate(-12 -12)" fill="#EDE6D3" stroke="#0C1119" stroke-width=".8" d="M12 2c.7 0 1.2.9 1.2 2.2V9l7.8 4.3v1.9l-7.8-2.3v4.9l2.3 1.7v1.5L12 20.2 8.5 21.2v-1.5l2.3-1.7v-4.9L3 15.2v-1.9L10.8 9V4.2C10.8 2.9 11.3 2 12 2z"/></g>';}
+  host.innerHTML=svg+'</svg>';
+  // where the aircraft is drawn from now on (moved smoothly between updates, see below)
+  mapP=pp?{X:X,Y:Y,lon:pp[0],hdg:hdg,W:W,H:H}:null;planeShown=null;placePlane(true);
+}
+function label(p,txt,col,W,H,X,Y,av){
+  if(!txt)return '';var x=+X(p[0]),y=+Y(p[1]),tw=txt.length*7.6;
+  var tx=Math.max(tw/2+4,Math.min(W-tw/2-4,x)),ty=y-12<14?y+20:y-11;
+  // never under the plane: above, below, right or left of the dot - the first spot that's clear and on the map
+  var hit=function(lx,ly){return av&&Math.abs(av[0]-lx)<tw/2+18&&Math.abs(av[1]-(ly-4))<22;};
+  if(hit(tx,ty)){
+    var spots=[[tx,y-11],[tx,y+30],[x+tw/2+24,y+4],[x-tw/2-24,y+4],[tx,y-32]];
+    for(var k=0;k<spots.length;k++){var sx=spots[k][0],sy=spots[k][1];
+      if(sx-tw/2<2||sx+tw/2>W-2||sy<14||sy>H-4||hit(sx,sy))continue;tx=sx;ty=sy;break;}
+  }
+  return '<text x="'+tx.toFixed(1)+'" y="'+ty.toFixed(1)+'" text-anchor="middle" fill="'+col+'" font-family="Georgia,serif" font-size="12" letter-spacing="1" paint-order="stroke" stroke="#0C1119" stroke-width="3">'+esc(txt)+'</text>';
+}
+
+// ---------------- page
+var last=null,fails=0,dataMs=0;   // dataMs: when the data on screen was true (the pilot's PC says how old it was)
+function show(id){['vFly','vIdle','vOff','vDown'].forEach(function(v){$(v).hidden=v!==id;});}
+function pill(cls,txt){$('pill').className='pill s-'+cls;$('pillTxt').textContent=txt;}
+// a landing time on the pilot's PC: within 15 min counts as the same landing
+function sameLanding(a,b){return a!=null&&b!=null&&Math.abs(a-b)<900000;}
+function tms(iso){var t=iso?Date.parse(iso):NaN;return isNaN(t)?null:t;}
+function gradeOf(r){r=Math.abs(r);return r<60?'Butter':r<180?'Smooth':r<300?'Firm':r<600?'Hard':'Very hard';}
+function dayWord(dt){
+  var n=new Date(),d0=new Date(n.getFullYear(),n.getMonth(),n.getDate()).getTime(),d1=new Date(dt.getFullYear(),dt.getMonth(),dt.getDate()).getTime(),k=Math.round((d0-d1)/864e5);
+  return k===0?'Today':k===1?'Yesterday':k>1&&k<7?dt.toLocaleDateString([],{weekday:'long'}):dt.toLocaleDateString([],{month:'short',day:'numeric'});
+}
+function agoText(ms){var s=Math.max(0,(Date.now()-ms)/1000);if(s<90)return 'just now';var m=Math.round(s/60);if(m<60)return m+' min ago';
+  var h=Math.round(s/3600);if(h<48)return h+' h ago';return Math.round(s/86400)+' days ago';}
+// crab at touchdown (Squawk 5.0, from Logbook 3.2): degrees, + = the nose to the right of the track over the
+// ground. "Crab at touchdown 4.2° right"; nothing at all when it isn't known.
+function crabLine(v){if(v==null||!isFinite(v))return '';var r=Math.round(v*10)/10;return 'Crab at touchdown '+(r===0?'0.0°':Math.abs(r).toFixed(1)+'° '+(r>0?'right':'left'));}
+// "Last landing": whether or not the pilot is flying now; hidden with no data or after 30 days
+var LL_MAX_MS=30*864e5;
+function lastLanding(d,slot,hide){
+  var L=d.lastLanding,t=L&&tms(L.t),el=$(slot);
+  if(!L||t==null||L.rate==null||Date.now()-t>LL_MAX_MS||hide){el.hidden=true;el.innerHTML='';return null;}
+  var g=L.grade||gradeOf(L.rate),dt=new Date(t),where=[L.airport,L.runway].filter(Boolean).join(' ');
+  el.innerHTML='<div class="card lland"><div class="llhd"><span class="eyebrow">Last landing</span><span class="llago" data-t="'+t+'">'+agoText(t)+'</span></div>'+
+    '<div class="llmain">'+(where?'<span class="llwhere">'+esc(where)+'<i>·</i></span>':'')+'<span class="llrate">'+fpm(L.rate)+'<small>fpm</small></span><span class="gtag '+gradeCls(g)+'">'+esc(g)+'</span></div>'+
+    '<div class="llwhen">'+esc(dayWord(dt)+', '+clock(dt))+' your time</div>'+
+    (crabLine(L.crab)?'<div class="llcrab">'+esc(crabLine(L.crab))+'</div>':'')+'</div>';
+  el.hidden=false;return t;
+}
+function dateText(s,landed){var d=landed?new Date(landed):null;if(!d||isNaN(d))d=s?new Date(s+'T12:00:00'):null;if(!d||isNaN(d))return '';var o={month:'short',day:'numeric'};if(d.getFullYear()!==new Date().getFullYear())o.year='numeric';return d.toLocaleDateString([],o);}
+function cRow(title,sub,x){var g=x.grade||gradeOf(x.rate);
+  return '<div class="crow"><div class="l"><b>'+esc(title)+'</b><span>'+esc(sub.filter(Boolean).join(' · '))+'</span></div>'+
+    '<div class="r"><b>'+fpm(x.rate)+'<small>fpm</small></b><span class="gtag '+gradeCls(g)+'">'+esc(g)+'</span></div></div>';}
+// the pilot's career (only when they chose to show it): totals, the best landing for each aircraft class, the last few
+// landings, then (6.3) the parts the pilot didn't hide: the last 30 days, landings, the route map, aircraft and airports,
+// records and milestones
+var careerData=null,mileOpen=false;
+function renderCareer(d){
+  var c=d&&d.on&&d.career,el=$('career');
+  if(!c){$('vCareer').hidden=true;el.innerHTML='';$('careerMore').innerHTML='';careerData=null;return;}
+  var tot=[[hm(c.minutes||0),'Hours'],[nf(c.flights||0),'Flights'],[nf(c.airports||0),'Airports']];
+  var six=c.airborneMin!=null;
+  if(six)tot.push([hm(c.airborneMin||0),'Airborne'],[nf(c.distanceNm||0),'nm flown'],c.countries!=null?[nf(c.countries),c.countries===1?'Country':'Countries']:[nf(c.types||0),'Aircraft']);
+  var lng=tot.some(function(t){return String(t[0]).length>6;});
+  var h='<div class="eyebrow">Career</div><div class="ctot'+(six?' six':'')+(lng?' long':'')+'">'+tot.map(function(t){return '<div><b>'+esc(String(t[0]))+'</b><span>'+t[1]+'</span></div>';}).join('')+'</div>';
+  if(six){var nt=[];
+    if(c.flights)nt.push(nf(c.online||0)+' of '+nf(c.flights)+' flight'+(c.flights===1?'':'s')+' on VATSIM');
+    if(c.types)nt.push(nf(c.types)+' aircraft type'+(c.types===1?'':'s'));
+    if(nt.length)h+='<div class="cnote">'+esc(nt.join(' · '))+'</div>';}
+  var best=c.best||[],rec=c.recent||[],cols=[];
+  if(best.length)cols.push('<div class="csub">Best landing'+(best.length>1?'s':'')+'</div><div class="clist">'+best.map(function(b){
+    return cRow(b.name,[[b.airport,b.runway].filter(Boolean).join(' '),b.aircraft,dateText(b.date,b.landed)],b);}).join('')+'</div>');
+  if(rec.length)cols.push('<div class="csub">Recent landings</div><div class="clist">'+rec.map(function(r){
+    return cRow((r.from||'?')+' → '+(r.to||'?'),[[r.airport,r.runway].filter(Boolean).join(' '),r.aircraft,dateText(r.date,r.landed)],r);}).join('')+'</div>');
+  // side by side on a wide screen; (6.3) or, with the bigger career, each list full width in two columns
+  if(cols.length)h+='<div class="ccols'+(cols.length>1?' two':'')+(six&&cols.length>1?' wide':'')+'">'+cols.map(function(x){return '<div>'+x+'</div>';}).join('')+'</div>';
+  el.innerHTML=h;
+  // the same parts again: leave them alone (a redraw would reset the map and Show all every 5 s)
+  var key=JSON.stringify(c);
+  if(key!==careerData){careerData=key;$('careerMore').innerHTML=careerMore(c);drawCareerMap(c);}
+  $('vCareer').hidden=false;
+}
+function chip(g){return g?'<span class="gtag '+gradeCls(g)+'">'+esc(g)+'</span>':'';}
+function lRow(title,sub,right){return '<div class="lrow"><div class="l"><b>'+esc(title)+'</b><span>'+esc(sub.filter(Boolean).join(' · '))+'</span></div><div class="r">'+right+'</div></div>';}
+function rateR(rate,g){return rate!=null?'<b>'+fpm(rate)+'<small>fpm</small></b>'+chip(g||gradeOf(rate)):'<span class="cnt">no landing rate</span>';}
+var MEDAL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><circle cx="12" cy="13.5" r="6.5"/><path d="M8.5 7.8 6 2.5h4l2 3.4 2-3.4h4l-2.5 5.3"/><path d="m12 10.4 1 2.1 2.2.3-1.6 1.5.4 2.2-2-1.1-2 1.1.4-2.2-1.6-1.5 2.2-.3z" fill="currentColor" stroke="none"/></svg>';
+function careerMore(c){
+  var out='',row=[];
+  // last 30 days
+  if(c.month){var m=c.month;
+    var x='<div class="card"><div class="chd"><span class="eyebrow">Last 30 days</span></div>';
+    if(!m.flights)x+='<p class="cnote" style="margin-top:12px">No flights in the last 30 days.</p>';
+    else{x+='<div class="mini six"><div><b>'+nf(m.flights)+'</b><span>'+(m.flights===1?'Flight':'Flights')+'</span></div><div><b>'+hm(m.airborneMin||0)+'</b><span>Airborne</span></div><div><b>'+nf(m.distanceNm||0)+'</b><span>nm flown</span></div>'+
+        '<div><b>'+nf(m.airports||0)+'</b><span>'+(m.airports===1?'Airport':'Airports')+'</span></div><div><b>'+nf(m.online||0)+'</b><span>On VATSIM</span></div><div><b>'+(m.avg!=null?fpm(m.avg):'—')+'</b><span>Avg fpm</span></div></div>';
+      if(m.best)x+='<div class="csub">Best landing</div>'+lRow((m.best.from||'?')+' → '+(m.best.to||'?'),[[m.best.airport,m.best.runway].filter(Boolean).join(' '),m.best.aircraft,dateText(m.best.date,m.best.landed)],rateR(m.best.rate,m.best.grade));}
+    row.push(x+'</div>');}
+  // landings: the average, stable approaches, every grade, the last 20
+  if(c.landings&&c.landings.measured){var L=c.landings,tot=L.grades.reduce(function(a,g){return a+g.n;},0);
+    var x='<div class="card"><div class="chd"><span class="eyebrow">Landings</span></div><div class="lavg"><div><div class="big">'+fpm(L.avg)+'<small>fpm</small></div><div class="what">average of '+nf(L.measured)+' measured landing'+(L.measured===1?'':'s')+'</div></div>';
+    if(L.stableOf)x+='<div class="stab"><b>'+Math.round(100*L.stable/L.stableOf)+' %</b><span>stable approaches · '+nf(L.stable)+' of '+nf(L.stableOf)+'</span></div>';
+    x+='</div>';
+    if(tot){x+='<div class="gbar" role="img" aria-label="'+esc(L.grades.filter(function(g){return g.n;}).map(function(g){return g.n+' '+g.g;}).join(', '))+'">'+L.grades.filter(function(g){return g.n;}).map(function(g){
+        return '<i class="'+gradeCls(g.g)+'" style="flex:'+g.n+' 1 0"></i>';}).join('')+'</div>';
+      x+='<div class="glegend">'+L.grades.map(function(g){return '<span class="'+gradeCls(g.g)+'"><i></i>'+esc(g.g)+' <b>'+nf(g.n)+'</b></span>';}).join('')+'</div>';}
+    if(L.trend&&L.trend.length>1)x+='<div class="trend"><div class="csub" style="margin-top:0">Last '+L.trend.length+' landings</div>'+trendSvg(L.trend,L.avg)+'<div class="tcap"><span>'+esc(dateText(L.trend[0].date,L.trend[0].landed))+'</span><span>'+esc(dateText(L.trend[L.trend.length-1].date,L.trend[L.trend.length-1].landed))+'</span></div></div>';
+    row.push(x+'</div>');}
+  if(row.length)out+='<div class="cgrid'+(row.length>1?' two':'')+'">'+row.join('')+'</div>';
+  // route map
+  if(c.routes&&c.routes.pairs&&c.routes.pairs.length){var na=Object.keys(c.routes.airports||{}).length;
+    out+='<div class="card cmapcard"><div id="cmapSlot"></div><div class="chd"><span class="eyebrow">Route map</span></div>'+
+      '<div class="maplegend">'+nf(c.routes.routes||c.routes.pairs.length)+' route'+((c.routes.routes||c.routes.pairs.length)===1?'':'s')+' · '+nf(na)+' airport'+(na===1?'':'s')+
+      ' · '+(touchOnly?'tap to explore':'drag to move · '+(/Mac/.test(navigator.platform||'')?'⌘':'Ctrl')+' + scroll to zoom')+'</div></div>';}
+  // aircraft and airports
+  row=[];
+  if(c.aircraft&&c.aircraft.length)row.push('<div class="card"><div class="chd"><span class="eyebrow">Aircraft</span>'+(c.types>c.aircraft.length?'<span class="r">top '+c.aircraft.length+' of '+nf(c.types)+'</span>':'')+'</div>'+
+    c.aircraft.map(function(a){return lRow(a.name,[nf(a.flights)+' flight'+(a.flights===1?'':'s'),hm(a.airborneMin||0)+' airborne'],a.best!=null?'<b>'+fpm(a.best)+'<small>fpm</small></b>'+chip(a.grade):'<span class="cnt">—</span>');}).join('')+'</div>');
+  if(c.topAirports&&c.topAirports.length)row.push('<div class="card"><div class="chd"><span class="eyebrow">Airports</span>'+(c.airports>c.topAirports.length?'<span class="r">top '+c.topAirports.length+' of '+nf(c.airports)+'</span>':'')+'</div>'+
+    c.topAirports.map(function(a){return lRow(a.icao,[a.name,a.country],'<b>'+nf(a.visits)+'</b><span class="cnt">'+(a.visits===1?'visit':'visits')+'</span>');}).join('')+'</div>');
+  if(row.length)out+='<div class="cgrid'+(row.length>1?' two':'')+'">'+row.join('')+'</div>';
+  // records
+  var R=c.records;
+  if(R&&(R.longest||R.longestTime||R.smoothest||R.highest)){var cells=[];
+    var nw=function(t){return t?'<span style="white-space:nowrap">'+esc(t)+'</span>':'';};
+    var rs=function(r){return [esc((r.from||'?')+' → '+(r.to||'?')),esc(r.aircraft||''),nw(dateText(r.date,r.landed))].filter(Boolean).join(' · ');};
+    if(R.longest)cells.push(['Farthest',nf(R.longest.nm)+' nm',rs(R.longest)]);
+    if(R.longestTime)cells.push(['Longest',hm(R.longestTime.min),rs(R.longestTime)]);
+    if(R.smoothest)cells.push(['Smoothest',fpm(R.smoothest.rate)+' <small class="muted" style="font-size:13px;font-style:italic">fpm</small>'+chip(R.smoothest.grade),
+      [esc([R.smoothest.airport,R.smoothest.runway].filter(Boolean).join(' ')),esc(R.smoothest.aircraft||''),nw(dateText(R.smoothest.date,R.smoothest.landed))].filter(Boolean).join(' · ')]);
+    if(R.highest)cells.push(['Highest',R.highest.ft>=18000?'FL'+Math.round(R.highest.ft/100):nf(R.highest.ft)+' ft',rs(R.highest)]);
+    out+='<div class="card"><div class="chd"><span class="eyebrow">Records</span></div><div class="rgrid">'+cells.map(function(x){return '<div><div class="k">'+x[0]+'</div><div class="v">'+x[1]+'</div><div class="s">'+x[2]+'</div></div>';}).join('')+'</div></div>';}
+  // milestones: the next few, then the ones reached (newest first; six, then Show all)
+  var M=c.milestones;
+  if(M&&((M.done&&M.done.length)||(M.next&&M.next.length))){
+    var x='<div class="card"><div class="chd"><span class="eyebrow">Milestones</span>'+(M.count?'<span class="r">'+nf(M.count)+' reached</span>':'')+'</div>';
+    if(M.next&&M.next.length)x+='<div class="csub">Next</div><div class="mnext" style="margin-top:0">'+M.next.map(function(n){var p=Math.max(0,Math.min(1,n.have/n.need));
+      return '<div><div class="t"><b>'+esc(n.title)+'</b><span>'+nf(n.have)+' of '+nf(n.need)+(n.unit==='nm'?' nm':'')+'</span></div><div class="bar" role="img" aria-label="'+Math.round(p*100)+' %"><i style="width:'+(p*100).toFixed(1)+'%"></i></div></div>';}).join('')+'</div>';
+    var dn=M.done||[];
+    if(dn.length){var shown=mileOpen?dn:dn.slice(0,6);
+      x+='<div class="csub">Reached</div><div class="mdone">'+shown.map(function(m){return '<div class="mrow"><span class="ic">'+MEDAL+'</span><div class="l"><b>'+esc(m.title)+'</b><span>'+esc(m.sub||'')+'</span></div><span class="d">'+esc(dateText(m.date,m.landed))+'</span></div>';}).join('')+'</div>';
+      if(dn.length>6)x+='<button class="mmore" id="mmore" aria-expanded="'+(mileOpen?'true':'false')+'">'+(mileOpen?'Show fewer':'Show all '+nf(dn.length))+'</button>';}
+    out+=x+'</div>';}
+  return out;
+}
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#mmore');if(!b||!last||!last.career)return;
+  mileOpen=!mileOpen;careerData=null;renderCareer(last);var nb=$('mmore');if(nb)nb.focus();});
+// the last landings as bars, oldest on the left, each in its grade's colour; the dashed line is the average
+function trendSvg(t,avg){
+  var W=600,H=96,n=t.length,mx=Math.max.apply(null,t.map(function(x){return Math.abs(x.rate||0);}).concat([avg||0,60])),gap=W/n,bw=Math.max(3,Math.min(22,gap*0.62));
+  var col={butter:'#8FB996',smooth:'#8AA9C9',firm:'#D1A956',hard:'#C9784A',veryhard:'#C4524F'};
+  var y=function(v){return H-6-(H-14)*Math.min(1,Math.abs(v)/mx);};
+  var g='<line x1="0" y1="'+(H-6)+'" x2="'+W+'" y2="'+(H-6)+'" stroke="#2A3446" stroke-width="1"/>';
+  t.forEach(function(x,i){var v=Math.abs(x.rate||0),gx=(i+.5)*gap-bw/2,top=y(v),c=col[String(x.grade||gradeOf(v)).toLowerCase().replace(/\s+/g,'')]||'#848A94';
+    g+='<rect x="'+gx.toFixed(1)+'" y="'+top.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+Math.max(1.5,H-6-top).toFixed(1)+'" rx="1.5" fill="'+c+'"><title>'+esc((x.to||'')+' '+fpm(x.rate)+' fpm')+'</title></rect>';});
+  if(avg)g+='<line x1="0" x2="'+W+'" y1="'+y(avg).toFixed(1)+'" y2="'+y(avg).toFixed(1)+'" stroke="#C0A062" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke"/>';
+  return '<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" role="img" aria-label="The last '+n+' landing rates, oldest first; dashed line: the average">'+g+'</svg>';
+}
+// (6.3) every route flown, on a chart that moves and zooms (the Logbook site's route map, made for the share page).
+// Mercator in "map units" (the world 4096 wide), drawn on a canvas: land, a 10° grid, each route a brass great circle
+// (brighter and thicker the more it's flown), airports as cream dots by visits, the busiest named where there's room.
+// The chart repeats left and right, so a route over the date line is one unbroken line, the Pacific crossed the short
+// way. On the PC: drag to move, Ctrl/⌘ + scroll (or + −) to zoom, ⤢ back to all routes, ⛶ full screen. On a phone or
+// iPad the card is a picture that scrolls with the page; tapping it opens the map full screen (drag, pinch, Done).
+var RW=4096,CM=null;
+function rmY(la){la=Math.max(-85,Math.min(85,la));return (180-Math.log(Math.tan(Math.PI/4+la*Math.PI/360))*180/Math.PI)/360*RW;}
+function rmX(lo){return (lo+180)/360*RW;}
+function rmLat(y){return (2*Math.atan(Math.exp((180-y/RW*360)*Math.PI/180))-Math.PI/2)*180/Math.PI;}
+var rmLand=null;
+function rmLandPath(){
+  if(rmLand||!land)return rmLand;
+  var p=new Path2D();
+  land.forEach(function(L){var r=L.r,shift=false;
+    if(r.every(function(q){return q[0]<-60;}))return;                                   // Antarctica: off the bottom of the chart
+    for(var i=1;i<r.length;i++)if(Math.abs(r[i][1]-r[i-1][1])>180){shift=true;break;}   // a ring over the date line stays whole
+    r.forEach(function(q,i){var x=rmX(shift&&q[1]<0?q[1]+360:q[1]),y=rmY(q[0]);if(i)p.lineTo(x,y);else p.moveTo(x,y);});p.closePath();});
+  return rmLand=p;
+}
+// [west, east] of the smallest stretch of longitude holding them all (east may be past 180)
+function rmSpan(lons){
+  var ls=lons.map(function(x){return ((x+180)%360+360)%360-180;}).sort(function(a,b){return a-b;});
+  if(!ls.length)return [0,0];
+  var gap=-1,at=0;
+  for(var i=0;i<ls.length;i++){var g=ls.length>1?((ls[(i+1)%ls.length]-ls[i])%360+360)%360:360;if(g>gap){gap=g;at=i;}}
+  var w=ls[(at+1)%ls.length],e=ls[at];if(e<w)e+=360;return [w,e];
+}
+var touchOnly=!!(window.matchMedia&&matchMedia('(hover:none) and (pointer:coarse)').matches);
+function CareerMap(){
+  var el=document.createElement('div');el.className='cmap';
+  el.innerHTML='<canvas></canvas><div class="map-ctl"><button data-z="1.6" aria-label="Zoom in" title="Zoom in">+</button><button data-z="0.625" aria-label="Zoom out" title="Zoom out">−</button>'+
+    '<button data-z="0" aria-label="Back to every route" title="Every route">⤢</button><button data-full="1" aria-label="Full screen" title="Full screen">⛶</button></div>'+
+    '<div class="map-tip" hidden></div><div class="map-hint" hidden></div>';
+  this.el=el;this.cv=el.querySelector('canvas');this.tip=el.querySelector('.map-tip');this.hint=el.querySelector('.map-hint');
+  this.vb=null;this.home=null;this.moved=false;this.user=false;this.full=false;this.pts={};this.key=null;this.raf=0;
+  this.routes=[];this.apts=[];this.wire();
+}
+CareerMap.prototype.size=function(){return [this.el.clientWidth||340,this.el.clientHeight||280];};
+// the routes and airports (kept as they are, with the view, when nothing changed)
+CareerMap.prototype.setData=function(R){
+  var key=JSON.stringify(R);if(key===this.key)return false;this.key=key;
+  var A=R.airports||{},ks=Object.keys(A),vmax=ks.reduce(function(m,k){return Math.max(m,A[k][2]);},1);
+  this.apts=ks.map(function(k){var a=A[k];return {id:k,la:a[0],lo:a[1],n:a[2],x:rmX(a[1]),y:rmY(a[0]),r:2+2.6*Math.sqrt(a[2]/vmax)};});
+  var most=(R.pairs||[]).reduce(function(m,p){return Math.max(m,p[2]);},1);
+  this.routes=(R.pairs||[]).slice().reverse().map(function(p){var a=A[p[0]],b=A[p[1]];if(!a||!b)return null;
+    var g=gc([a[0],a[1]],[b[0],b[1]],64),prev=null,xy=[],x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+    g.forEach(function(q){var lo=q[1];if(prev!=null){while(lo-prev>180)lo-=360;while(lo-prev<-180)lo+=360;}prev=lo;
+      var x=rmX(lo),y=rmY(q[0]);xy.push([x,y]);if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;});
+    // (4.6.2) each way flown: ab a→b, ba b→a (a is where the more-flown way starts), with their last dates
+    var dir=p.length>=5;
+    return {a:p[0],b:p[1],n:p[2],ab:dir?p[3]:0,ba:dir?p[4]:0,la:dir?p[5]:null,lb:dir?p[6]:null,dir:dir,f:p[2]/most,xy:xy,pts:g,bx:[x0,x1,y0,y1]};}).filter(Boolean);
+  this.user=false;return true;
+};
+// the view holding every route, whole (routes over the pole included), with room for the title and the caption
+CareerMap.prototype.fit=function(){
+  var s=this.size(),W=s[0],H=s[1],pts=[];
+  this.routes.forEach(function(r){r.pts.forEach(function(q){pts.push(q);});});
+  this.apts.forEach(function(a){pts.push([a.la,a.lo]);});
+  if(!pts.length)return {x:rmX(-140),y:rmY(70),w:rmX(40)-rmX(-140),h:(rmX(40)-rmX(-140))*H/W};
+  var sp=rmSpan(pts.map(function(p){return p[1];})),x0=rmX(sp[0]),x1=rmX(sp[1]),y0=1e9,y1=-1e9;
+  pts.forEach(function(p){var y=rmY(p[0]);if(y<y0)y0=y;if(y>y1)y1=y;});
+  var padT=this.full?24:48,padB=this.full?24:36,padX=this.full?24:22;
+  var w=Math.max(x1-x0,60),h=Math.max(y1-y0,40);
+  var k=Math.min((W-2*padX)/w,(H-padT-padB)/h);                  // px per map unit
+  k=Math.min(k,W/60);                                             // never closer than 60 map units across (about 5°)
+  if(this.full)k=Math.max(k,0.62*H/(rmY(-60)-rmY(85)));         // full screen on a tall screen: the chart fills most of its height
+  var vw=W/k,vh=H/k,cx=(x0+x1)/2,cy=(y0+y1)/2+(padT-padB)/2/k;
+  return {x:cx-vw/2,y:cy-vh/2,w:vw,h:vh};
+};
+CareerMap.prototype.reset=function(){this.home=this.fit();this.vb={x:this.home.x,y:this.home.y,w:this.home.w,h:this.home.h};this.user=false;this.draw();};
+CareerMap.prototype.draw=function(){var me=this;if(!this.raf)this.raf=requestAnimationFrame(function(){me.raf=0;me.paint();});};
+CareerMap.prototype.paint=function(){
+  var s=this.size(),W=s[0],H=s[1];if(!W||!H)return;
+  if(!this.vb)this.reset();
+  var vb=this.vb,dpr=Math.min(2,window.devicePixelRatio||1),cv=this.cv;
+  vb.h=vb.w*H/W;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);}
+  var cx=vb.x+vb.w/2;if(cx<0||cx>=RW)vb.x-=Math.floor(cx/RW)*RW;  // past the date line: the same place on the chart's copy
+  // the chart runs from 85° N to 60° S: never far off it, and when the view is taller than it, the chart sits in the middle
+  var band=rmY(-60)-rmY(85),top=rmY(85)-vb.h*0.3,bottom=rmY(-60)+vb.h*0.3-vb.h;
+  if(vb.h<band)vb.y=Math.max(top,Math.min(bottom,vb.y));else vb.y=rmY(85)-(vb.h-band)/2;
+  var k=W/vb.w,ctx=cv.getContext('2d'),vx1=vb.x+vb.w;
+  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle='#0C1119';ctx.fillRect(0,0,cv.width,cv.height);
+  var land2=rmLandPath(),copies=[-RW,0,RW];
+  if(land2){ctx.fillStyle='#18212F';ctx.strokeStyle='#2E3A50';ctx.lineJoin='round';
+    copies.forEach(function(o){if(o+RW<vb.x||o>vx1)return;ctx.setTransform(dpr*k,0,0,dpr*k,(o-vb.x)*dpr*k,-vb.y*dpr*k);ctx.lineWidth=0.8/k;ctx.fill(land2);ctx.stroke(land2);});}
+  // the 10° grid
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.strokeStyle='#202B3D';ctx.lineWidth=0.7;ctx.beginPath();
+  var lo0=vb.x/RW*360-180,lo1=vx1/RW*360-180,la1=Math.min(80,rmLat(vb.y)),la0=Math.max(-60,rmLat(vb.y+vb.h));
+  var gTop=Math.max(0,(rmY(85)-vb.y)*k),gBot=Math.min(H,(rmY(-60)-vb.y)*k);
+  for(var lo=Math.ceil(lo0/10)*10;lo<=lo1;lo+=10){var gx=(rmX(lo)-vb.x)*k;ctx.moveTo(gx,gTop);ctx.lineTo(gx,gBot);}
+  for(var la=Math.ceil(la0/10)*10;la<=la1;la+=10){var gy=(rmY(la)-vb.y)*k;ctx.moveTo(0,gy);ctx.lineTo(W,gy);}
+  // (the vertical lines only between 80° N and 80° S)
+  ctx.stroke();
+  // the routes (the most flown on top), in screen pixels so they stay crisp at any zoom
+  ctx.lineCap='round';ctx.lineJoin='round';
+  var me=this;
+  copies.forEach(function(o){
+    me.routes.forEach(function(r){var b=r.bx;if(b[1]+o<vb.x||b[0]+o>vx1||b[3]<vb.y||b[2]>vb.y+vb.h)return;
+      ctx.strokeStyle='rgba(192,160,98,'+(0.42+0.5*r.f).toFixed(2)+')';ctx.lineWidth=1.2+1.6*r.f;ctx.beginPath();
+      r.xy.forEach(function(p,i){var x=(p[0]+o-vb.x)*k,y=(p[1]-vb.y)*k;if(i)ctx.lineTo(x,y);else ctx.moveTo(x,y);});ctx.stroke();});});
+  // (4.6.2) which way each route was flown: a small arrowhead in its middle, one each way when flown both ways
+  // (only where the line is long enough on screen to carry one cleanly)
+  copies.forEach(function(o){
+    me.routes.forEach(function(r){var b=r.bx;if(!r.dir||b[1]+o<vb.x||b[0]+o>vx1||b[3]<vb.y||b[2]>vb.y+vb.h)return;
+      var sp=r.xy.map(function(p){return [(p[0]+o-vb.x)*k,(p[1]-vb.y)*k];}),cum=[0];
+      for(var i=1;i<sp.length;i++)cum.push(cum[i-1]+Math.hypot(sp[i][0]-sp[i-1][0],sp[i][1]-sp[i-1][1]));
+      var L=cum[cum.length-1],both=r.ab>0&&r.ba>0;if(L<(both?90:48))return;
+      var sz=6+2.5*r.f,col='rgba(222,196,140,'+(0.78+0.22*r.f).toFixed(2)+')';
+      var at=function(fr,back){var d=L*fr,j=1;while(j<cum.length-1&&cum[j]<d)j++;
+        var t=(d-cum[j-1])/((cum[j]-cum[j-1])||1),x=sp[j-1][0]+t*(sp[j][0]-sp[j-1][0]),y=sp[j-1][1]+t*(sp[j][1]-sp[j-1][1]);
+        var ang=Math.atan2(sp[j][1]-sp[j-1][1],sp[j][0]-sp[j-1][0])+(back?Math.PI:0);
+        if(x<-sz||x>W+sz||y<-sz||y>H+sz)return;
+        ctx.save();ctx.translate(x,y);ctx.rotate(ang);ctx.beginPath();
+        ctx.moveTo(sz*0.62,0);ctx.lineTo(-sz*0.5,-sz*0.52);ctx.lineTo(-sz*0.22,0);ctx.lineTo(-sz*0.5,sz*0.52);ctx.closePath();
+        ctx.lineWidth=2;ctx.strokeStyle='#0C1119';ctx.stroke();ctx.fillStyle=col;ctx.fill();ctx.restore();};
+      if(both){at(0.6,false);at(0.4,true);}else at(0.5,r.ab===0);});});
+  // the airports, and as many of the busiest names as fit without touching (more as you zoom in)
+  var shown=[];
+  copies.forEach(function(o){me.apts.forEach(function(a){var x=(a.x+o-vb.x)*k,y=(a.y-vb.y)*k;if(x<-10||x>W+10||y<-10||y>H+10)return;shown.push({a:a,x:x,y:y});});});
+  ctx.fillStyle='#EDE6D3';ctx.strokeStyle='#0C1119';ctx.lineWidth=1.3;
+  shown.forEach(function(s){ctx.beginPath();ctx.arc(s.x,s.y,s.a.r,0,Math.PI*2);ctx.fill();ctx.stroke();});
+  ctx.font='12px Georgia, "Palatino", serif';ctx.textAlign='center';ctx.textBaseline='alphabetic';
+  var taken=[],zoomed=this.home?this.home.w/vb.w:1,cap=Math.round(Math.min(40,5*zoomed*zoomed)),padT=this.full?8:40,padB=this.full?8:30;
+  shown.slice().sort(function(p,q){return q.a.n-p.a.n;}).forEach(function(s){
+    if(taken.length>=cap)return;
+    var tw=ctx.measureText(s.a.id).width+4,tx=Math.max(tw/2+4,Math.min(W-tw/2-4,s.x)),ty=s.y-s.a.r-5;
+    if(ty-12<padT)ty=s.y+s.a.r+15;
+    if(ty>H-padB)return;
+    if(taken.some(function(t){return Math.abs(t[0]-tx)<(t[2]+tw)/2+4&&Math.abs(t[1]-ty)<15;}))return;
+    taken.push([tx,ty,tw]);
+    ctx.lineWidth=3.2;ctx.strokeStyle='#0C1119';ctx.strokeText(s.a.id,tx,ty);ctx.fillStyle='#EDE6D3';ctx.fillText(s.a.id,tx,ty);});
+  this.labels=taken.length;
+};
+// what's under a point: the nearest airport within 12 px, else the nearest route within 9 px
+CareerMap.prototype.pick=function(px,py){
+  if(!this.vb)return null;var vb=this.vb,k=this.size()[0]/vb.w,best=null,bd=144;
+  var me=this;
+  [-RW,0,RW].forEach(function(o){me.apts.forEach(function(a){var dx=(a.x+o-vb.x)*k-px,dy=(a.y-vb.y)*k-py,d=dx*dx+dy*dy;if(d<bd){bd=d;best={apt:a};}});});
+  if(best)return best;bd=81;
+  [-RW,0,RW].forEach(function(o){me.routes.forEach(function(r){var xy=r.xy;
+    for(var i=1;i<xy.length;i++){var ax=(xy[i-1][0]+o-vb.x)*k,ay=(xy[i-1][1]-vb.y)*k,bx=(xy[i][0]+o-vb.x)*k,by=(xy[i][1]-vb.y)*k,dx=bx-ax,dy=by-ay,L=dx*dx+dy*dy;
+      var t=L?((px-ax)*dx+(py-ay)*dy)/L:0;t=t<0?0:t>1?1:t;var ex=ax+t*dx-px,ey=ay+t*dy-py,d=ex*ex+ey*ey;if(d<bd){bd=d;best={route:r};}}});});
+  return best;
+};
+CareerMap.prototype.tipFor=function(h){
+  if(h.apt){var nm=(last&&last.career&&(last.career.topAirports||[]).filter(function(t){return t.icao===h.apt.id;})[0])||null;
+    return h.apt.id+(nm&&nm.name?' · '+nm.name:'')+' · '+nf(h.apt.n)+(h.apt.n===1?' visit':' visits');}
+  var r=h.route;
+  if(!r.dir)return r.a+' – '+r.b+' · '+nf(r.n)+(r.n===1?' flight':' flights');
+  var way=function(x,y,n,d){return x+' → '+y+' · '+nf(n)+(n===1?' flight':' flights')+(d?' · '+(n===1?'':'last ')+rtDate(d):'');};
+  return [r.ab?way(r.a,r.b,r.ab,r.la):null,r.ba?way(r.b,r.a,r.ba,r.lb):null].filter(Boolean).join('\n');
+};
+// a route's date, as "Oct 25" (with the year when it isn't this year)
+function rtDate(iso){var m=/^(\d{4})-(\d{2})-(\d{2})/.exec(iso||'');if(!m)return '';var d=new Date(+m[1],+m[2]-1,+m[3]),o={month:'short',day:'numeric'};
+  if(d.getFullYear()!==new Date().getFullYear())o.year='numeric';return d.toLocaleDateString([],o);}
+CareerMap.prototype.showTip=function(h,x,y){
+  if(!h){this.tip.hidden=true;return;}
+  var s=this.size();this.tip.textContent=this.tipFor(h);this.tip.hidden=false;
+  var tw=this.tip.offsetWidth,th=this.tip.offsetHeight;
+  this.tip.style.left=Math.max(6,Math.min(s[0]-tw-6,x+12))+'px';this.tip.style.top=Math.max(6,Math.min(s[1]-th-6,y-th-10))+'px';
+};
+CareerMap.prototype.zoomAt=function(f,cx,cy){
+  var vb=this.vb;if(!vb)return;var s=this.size(),W=s[0],H=s[1];
+  var nw=Math.max(40,Math.min(RW*1.1,vb.w/f));f=vb.w/nw;
+  var px=vb.x+cx/W*vb.w,py=vb.y+cy/H*vb.h;
+  this.vb={x:px-(px-vb.x)/f,y:py-(py-vb.y)/f,w:nw,h:nw*H/W};this.user=true;this.draw();
+};
+CareerMap.prototype.live=function(){return this.full||!touchOnly;};   // moves and zooms here (else a tap opens it full screen)
+CareerMap.prototype.wire=function(){
+  var me=this,el=this.el,hintT=0;
+  var local=function(e){var r=el.getBoundingClientRect();return [e.clientX-r.left,e.clientY-r.top];};
+  var hint=function(t){me.hint.textContent=t;me.hint.hidden=false;clearTimeout(hintT);hintT=setTimeout(function(){me.hint.hidden=true;},1500);};
+  el.addEventListener('wheel',function(e){
+    if(!me.live())return;
+    if(!(e.ctrlKey||e.metaKey||me.full||me.active)){hint(/Mac|iPhone|iPad/.test(navigator.platform||'')?'Hold ⌘ and scroll to zoom the map':'Hold Ctrl and scroll to zoom the map');return;}
+    e.preventDefault();var p=local(e);me.zoomAt(Math.pow(1.002,-e.deltaY*(e.deltaMode===1?33:1)),p[0],p[1]);},{passive:false});
+  document.addEventListener('pointerdown',function(e){me.active=el.contains(e.target);},true);
+  el.addEventListener('pointerdown',function(e){
+    if(e.target.closest('.map-ctl'))return;
+    if(!me.live()){me.tapAt=[e.clientX,e.clientY];return;}
+    me.pts[e.pointerId]=[e.clientX,e.clientY];var ids=Object.keys(me.pts);
+    if(ids.length===2){var a=me.pts[ids[0]],b=me.pts[ids[1]];me.pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1]),vb:{x:me.vb.x,y:me.vb.y,w:me.vb.w,h:me.vb.h}};me.drag=null;me.moved=true;return;}
+    me.moved=false;if(e.pointerType==='mouse')e.preventDefault();
+    me.drag={x:e.clientX,y:e.clientY,vb:{x:me.vb.x,y:me.vb.y,w:me.vb.w,h:me.vb.h}};});
+  el.addEventListener('pointermove',function(e){
+    if(!me.live())return;
+    if(me.pts[e.pointerId])me.pts[e.pointerId]=[e.clientX,e.clientY];
+    var ids=Object.keys(me.pts);
+    if(me.pinch&&ids.length===2){var a=me.pts[ids[0]],b=me.pts[ids[1]],r=el.getBoundingClientRect(),d=Math.hypot(a[0]-b[0],a[1]-b[1]);
+      me.vb={x:me.pinch.vb.x,y:me.pinch.vb.y,w:me.pinch.vb.w,h:me.pinch.vb.h};me.zoomAt(d/(me.pinch.d||1),(a[0]+b[0])/2-r.left,(a[1]+b[1])/2-r.top);return;}
+    var dr=me.drag;
+    if(!dr){if(e.pointerType==='mouse'){var p=local(e),h=me.pick(p[0],p[1]);el.style.cursor=h?'pointer':'';me.showTip(h,p[0],p[1]);}return;}
+    if(!me.moved&&Math.abs(e.clientX-dr.x)+Math.abs(e.clientY-dr.y)>4){me.moved=true;try{el.setPointerCapture(e.pointerId);}catch(x){}el.classList.add('drag');me.tip.hidden=true;}
+    if(!me.moved)return;
+    var kk=dr.vb.w/el.clientWidth;me.vb={x:dr.vb.x-(e.clientX-dr.x)*kk,y:dr.vb.y-(e.clientY-dr.y)*kk,w:dr.vb.w,h:dr.vb.h};me.user=true;me.draw();});
+  var up=function(e){
+    if(!me.live()){var t=me.tapAt;me.tapAt=null;if(t&&e.type==='pointerup'&&Math.abs(e.clientX-t[0])+Math.abs(e.clientY-t[1])<8&&!e.target.closest('.map-ctl'))openFullMap();return;}
+    delete me.pts[e.pointerId];
+    if(me.pinch&&Object.keys(me.pts).length<2){me.pinch=null;me.drag=null;el.classList.remove('drag');setTimeout(function(){me.moved=false;},0);return;}
+    var was=me.moved,d=me.drag;me.drag=null;el.classList.remove('drag');
+    if(!was&&d&&e.type==='pointerup'&&!e.target.closest('.map-ctl')){var p=local(e);me.showTip(me.pick(p[0],p[1]),p[0],p[1]);}
+    setTimeout(function(){me.moved=false;},0);};
+  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',function(e){delete me.pts[e.pointerId];me.pinch=null;me.drag=null;me.tapAt=null;el.classList.remove('drag');});
+  el.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse')me.tip.hidden=true;});
+  el.addEventListener('keydown',function(e){
+    if(!me.vb)return;var s=me.size(),st=me.vb.w*0.12,mv={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[e.key];
+    if(mv){e.preventDefault();me.vb.x+=mv[0];me.vb.y+=mv[1];me.user=true;me.draw();}
+    else if(e.key==='+'||e.key==='='){e.preventDefault();me.zoomAt(1.6,s[0]/2,s[1]/2);}
+    else if(e.key==='-'||e.key==='_'){e.preventDefault();me.zoomAt(0.625,s[0]/2,s[1]/2);}
+    else if(e.key==='0'){e.preventDefault();me.reset();}
+    else if(e.key==='Enter'&&!me.live()){e.preventDefault();openFullMap();}});
+  el.querySelectorAll('.map-ctl button').forEach(function(b){b.addEventListener('click',function(e){e.stopPropagation();
+    if(b.dataset.full){if(me.full)closeFullMap();else openFullMap();return;}
+    var z=+b.dataset.z,s=me.size();if(!z)me.reset();else me.zoomAt(z,s[0]/2,s[1]/2);});});
+  el.tabIndex=0;
+};
+// full screen: the same map in its own layer over the page (Done, Esc or the ⛶ button close it)
+function openFullMap(){
+  if(!CM||CM.full)return;
+  var ov=$('cmapFull');
+  if(!ov){ov=document.createElement('div');ov.id='cmapFull';ov.className='cmapfull';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');ov.setAttribute('aria-label','Route map');
+    ov.innerHTML='<div class="cmf-top"><span class="eyebrow">Route map</span><span class="cmf-cap" id="cmfCap"></span><button class="cmf-done" id="cmfDone">Done</button></div><div class="cmf-body" id="cmfBody"></div>';
+    document.body.appendChild(ov);$('cmfDone').addEventListener('click',closeFullMap);}
+  var R=last&&last.career&&last.career.routes,na=R?Object.keys(R.airports||{}).length:0,nr=R?(R.routes||(R.pairs||[]).length):0;
+  $('cmfCap').textContent=R?nf(nr)+' route'+(nr===1?'':'s')+' · '+nf(na)+' airport'+(na===1?'':'s'):'';
+  CM.full=true;CM.el.classList.remove('still');CM.back=CM.el.parentNode;$('cmfBody').appendChild(CM.el);ov.hidden=false;document.documentElement.classList.add('cmf-open');
+  CM.el.setAttribute('aria-label','Route map. Drag to move, pinch or plus and minus to zoom.');
+  CM.reset();setTimeout(function(){CM.reset();if(!touchOnly)$('cmfDone').focus();},60);
+}
+function closeFullMap(){
+  if(!CM||!CM.full)return;
+  var ov=$('cmapFull');CM.full=false;CM.pts={};CM.pinch=null;CM.drag=null;CM.tip.hidden=true;
+  var slot=$('cmapSlot');if(slot)slot.appendChild(CM.el);
+  if(touchOnly)CM.el.classList.add('still');
+  if(ov)ov.hidden=true;document.documentElement.classList.remove('cmf-open');
+  CM.el.setAttribute('aria-label',touchOnly?'Route map of every route flown. Tap to open it full screen.':'Route map of every route flown. Drag to move, plus and minus to zoom.');
+  CM.reset();CM.el.focus({preventScroll:true});
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&CM&&CM.full){e.preventDefault();closeFullMap();}});
+function drawCareerMap(c){
+  var slot=$('cmapSlot');if(!slot||!c.routes)return;
+  if(!land){loadLand();return;}
+  if(!CM){CM=new CareerMap();CM.el.setAttribute('role','application');
+    CM.el.setAttribute('aria-label',touchOnly?'Route map of every route flown. Tap to open it full screen.':'Route map of every route flown. Drag to move, plus and minus to zoom.');}
+  if(touchOnly&&!CM.full)CM.el.classList.add('still');
+  if(!CM.full&&CM.el.parentNode!==slot)slot.appendChild(CM.el);
+  var changed=CM.setData(c.routes);
+  if(changed||!CM.vb||!CM.user)CM.reset();else CM.draw();
+}
+
+// (Logbook 4.6) Landing videos: the landings the pilot shared, newest first. The newest (or the one a landing's own
+// link names: ...#landing-<id>) in the player, the others beside it (wide screens) or under it; Share sends that
+// landing's own link. "Watch the landing" on the Last landing card when that landing was shared.
+var LV_SHOWN=8,lvKey=null,lvCur=null,lvAll=false;
+var LV_PLAY='<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 4.5v15l12.5-7.5z"/></svg>';
+var LV_SHARE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7.5 7.5 4.5-4.5 4.5 4.5"/><path d="M5 12v7.5h14V12"/></svg>';
+function lvClock(s){s=Math.round(s||0);return Math.floor(s/60)+':'+pad(s%60);}
+function lvDate(t){var d=new Date(t);if(isNaN(d))return '';var o={month:'short',day:'numeric'};if(d.getFullYear()!==new Date().getFullYear())o.year='numeric';return d.toLocaleDateString([],o);}
+function lvLink(v){return location.href.split('#')[0]+'#landing-'+v.id;}
+function lvWant(){var m=/^#landing-([\w-]+)$/.exec(location.hash);return m?m[1]:null;}
+function lvList(d){var V=d&&d.on?(d.videos||(snap&&snap.on!==false?snap.videos:null)):null;return Array.isArray(V)?V.filter(function(v){return v&&v.id&&v.src;}):[];}
+function renderLandings(d){
+  var fly=!!(d&&d.on&&d.flying),slot=$(fly?'lvFly':'lvIdle'),other=$(fly?'lvIdle':'lvFly');
+  other.hidden=true;other.innerHTML='';
+  var V=lvList(d);
+  var ll=d&&d.lastLanding,mine=ll&&V.filter(function(v){return v.t&&Math.abs(Date.parse(v.t)-Date.parse(ll.t))<120000;})[0];
+  var card=$(fly?'llFly':'llIdle').querySelector('.lland');
+  if(card&&mine&&!card.querySelector('.llwatch')){var b=document.createElement('button');b.className='llwatch';b.innerHTML=LV_PLAY+'Watch the landing';
+    b.onclick=function(){lvShow(mine.id,true);};card.appendChild(b);}
+  if(!V.length){slot.hidden=true;slot.innerHTML='';lvKey=null;return;}
+  var key=JSON.stringify(V)+fly;
+  if(key===lvKey&&slot.firstChild){slot.hidden=false;return;}          // already drawn: leave the player alone
+  lvKey=key;
+  if(!lvCur||!V.some(function(v){return v.id===lvCur;}))lvCur=V.some(function(v){return v.id===lvWant();})?lvWant():V[0].id;
+  slot.innerHTML='<div class="card lvid" id="lvCard"><div class="chd"><span class="eyebrow">Landing videos</span><span class="r">'+V.length+' shared</span></div>'+
+    '<div class="lv-body"><div><div class="lv-stage" id="lvStage"></div><div class="lv-now" id="lvNow"></div><div id="lvLinkBox"></div></div><div><div class="lv-list" id="lvList"></div><div id="lvMoreBox"></div></div></div></div>';
+  slot.hidden=false;
+  lvDraw(V,false);
+  if(lvWant()&&!lvShown){lvShown=true;setTimeout(function(){lvShow(lvWant(),false);},50);}
+}
+var lvShown=false;
+function lvDraw(V,play){
+  var v=V.filter(function(x){return x.id===lvCur;})[0]||V[0],tall=v.h>v.w;
+  var st=$('lvStage');
+  st.className='lv-stage'+(tall?' tall':'');
+  st.innerHTML='<video controls playsinline preload="metadata"'+(v.poster?' poster="'+esc(v.poster)+'"':'')+' src="'+esc(v.src)+'" aria-label="Landing at '+esc(v.airport+' '+(v.runway||''))+'"></video>';
+  if(play){var el=st.querySelector('video'),p=el.play();if(p&&p.catch)p.catch(function(){});}
+  $('lvNow').innerHTML='<div class="l"><div class="lv-where"><span class="w">'+esc([v.airport,v.runway].filter(Boolean).join(' '))+'<i>·</i></span><span class="rt">'+fpm(v.rate)+'<small>fpm</small></span>'+chip(v.grade||(v.rate!=null?gradeOf(v.rate):null))+'</div>'+
+    '<div class="lv-sub">'+esc([(v.from||'?')+' → '+(v.airport||'?'),v.aircraft,lvDate(v.t)].filter(Boolean).join(' · '))+'</div></div>'+
+    '<button class="lv-share" id="lvShare">'+LV_SHARE+'<span>Share</span></button>';
+  $('lvLinkBox').innerHTML='';
+  $('lvShare').onclick=function(){
+    var url=lvLink(v),b=this,t=b.querySelector('span');
+    var said=function(x){t.textContent=x;setTimeout(function(){t.textContent='Share';},1800);};
+    var show=function(){$('lvLinkBox').innerHTML='<div class="lv-link">'+esc(url)+'</div>';};
+    if(navigator.share){navigator.share({title:'Landing at '+[v.airport,v.runway].filter(Boolean).join(' '),url:url}).catch(function(){});return;}
+    try{navigator.clipboard.writeText(url).then(function(){said('Link copied');},show);}catch(e){show();}
+  };
+  var more=V.length>LV_SHOWN&&!lvAll;
+  $('lvList').innerHTML=(more?V.slice(0,LV_SHOWN):V).map(function(x){
+    return '<button class="lv-th" data-id="'+esc(x.id)+'" aria-pressed="'+(x.id===v.id)+'" aria-label="Play the landing at '+esc([x.airport,x.runway].filter(Boolean).join(' '))+'">'+
+      '<span class="im'+(x.poster?'':' nopic')+'"'+(x.poster?' style="background-image:url(\''+esc(x.poster)+'\')"':'')+'><span class="pl">'+LV_PLAY+'</span><span class="du">'+lvClock(x.dur)+'</span></span>'+
+      '<span class="cap"><b>'+esc([x.airport,x.runway].filter(Boolean).join(' '))+(x.rate!=null?'<small>'+fpm(x.rate)+' fpm</small>':'')+'</b><span>'+esc([x.aircraft,lvDate(x.t)].filter(Boolean).join(' · '))+'</span></span></button>';
+  }).join('');
+  $('lvMoreBox').innerHTML=V.length>LV_SHOWN?'<button class="lv-more" id="lvMore">'+(lvAll?'Show fewer':'Show all '+V.length)+'</button>':'';
+  [].forEach.call($('lvList').querySelectorAll('.lv-th'),function(t){t.onclick=function(){lvCur=t.getAttribute('data-id');lvDraw(V,true);if(innerWidth<900)$('lvStage').scrollIntoView({block:'center',behavior:'smooth'});};});
+  if($('lvMore'))$('lvMore').onclick=function(){lvAll=!lvAll;lvDraw(V,false);};
+}
+function lvShow(id,play){
+  var V=lvList(last);
+  if(!V.some(function(v){return v.id===id;}))return;
+  lvCur=id;lvDraw(V,play);
+  var c=$('lvCard');if(!c)return;c.scrollIntoView({block:'start',behavior:'smooth'});
+  c.classList.add('flash');setTimeout(function(){c.classList.remove('flash');},1400);
+}
+addEventListener('hashchange',function(){if(lvWant())lvShow(lvWant(),false);});
+
+function render(d){
+  last=d;
+  renderCareer(d);
+  setTimeout(function(){renderLandings(d);},0);
+  if(!d.on){show('vOff');pill('off','Off');document.title='Live flight';move=null;return;}
+  if(!d.flying){
+    show('vIdle');pill('off','Not flying');document.title='Live flight · not flying';move=null;
+    var L=d.last;$('lastCard').hidden=!L;
+    var llT=lastLanding(d,'llIdle',false),lfT=L?tms(L.landing):null;
+    // the last landing is the last flight's: its card already says it, so the flight shows its times only
+    var dup=L&&llT!=null&&(lfT!=null?sameLanding(llT,lfT):(d.lastLanding.airport&&d.lastLanding.airport===L.to&&L.rate!=null&&Math.round(Math.abs(L.rate))===Math.round(Math.abs(d.lastLanding.rate))));
+    if(L){
+      $('lastRoute').textContent=(L.from||'?')+' → '+(L.to||'?');
+      var dt=L.landing?new Date(L.landing):(L.date?new Date(L.date+'T12:00:00'):null);
+      $('lastSub').textContent=[dt?dt.toLocaleDateString([],{weekday:'long',month:'long',day:'numeric'}):null,L.aircraft].filter(Boolean).join(' · ');
+      var tl=tile('Flight time',L.flightMin!=null?hm(L.flightMin):'—','hours : minutes')+tile('Distance',L.distance!=null?nf(L.distance)+' nm':'—',L.distance!=null?nf(L.distance*1.852)+' km':'');
+      if(!dup)tl+=tile('Landing',L.rate!=null?fpm(L.rate)+' <span class="muted" style="font-size:14px">fpm</span>':'—',L.grade?esc(L.grade):'')+tile('Runway',L.runway?esc(L.runway):'—',L.to?esc(L.to):'');
+      $('lastTiles').className='tiles'+(dup?' two':'');$('lastTiles').innerHTML=tl;
+    }
+    return;
+  }
+  show('vFly');
+  var landed=!!d.landing;
+  pill(landed?'landed':'live',landed?'Landed':'Live');
+  $('eyebrow').textContent=landed?'Landed':'Flight';
+  $('cs').textContent=d.callsign||'';
+  $('ac').textContent=d.aircraft||'';
+  $('depIcao').textContent=(d.dep&&d.dep.icao)||'—';$('depName').textContent=(d.dep&&d.dep.name)||'';
+  // (5.2) offline with no flight plan: where it left from, the destination unknown
+  var noArr=!(d.arr&&d.arr.icao);
+  $('arrIcao').textContent=noArr?'—':d.arr.icao;$('arrName').textContent=noArr?'Destination unknown':((d.arr&&d.arr.name)||'');
+  document.title=(d.callsign||'Live flight')+((d.dep&&d.dep.icao)?' · '+d.dep.icao+' → '+(noArr?'?':d.arr.icao):'');
+  var pct=d.total>0&&d.toGo!=null?Math.max(0,Math.min(1,1-d.toGo/d.total)):(landed?1:0);
+  $('fill').style.width=(pct*100).toFixed(1)+'%';$('pplane').style.left=(pct*100).toFixed(1)+'%';
+  $('phase').textContent=d.phase||'';
+  $('progTxt').textContent=landed?'Arrived':(d.toGo!=null?nf(d.toGo)+' nm to go':'');
+  // landing card
+  $('landedCard').hidden=!landed;
+  if(landed){var l=d.landing;
+    $('ldRate').innerHTML=fpm(l.rate)+'<small>fpm</small>';
+    $('ldWhere').textContent='Landed at '+(l.airport||(d.arr&&d.arr.icao)||'')+(l.runway?' · Runway '+l.runway:'');
+    $('ldWhen').textContent=l.t?clock(new Date(l.t))+' your time':'';
+    var cEl=$('ldCrab');cEl.textContent=crabLine(l.crab);cEl.hidden=!cEl.textContent;
+    var gEl=$('ldGrade');gEl.textContent=l.grade||'';gEl.className='gtag '+gradeCls(l.grade);gEl.hidden=!l.grade;}
+  // the last landing (from before this flight); once this flight's landing is on the big card above, not twice
+  var llt=d.lastLanding&&tms(d.lastLanding.t);
+  lastLanding(d,'llFly',landed&&(!d.landing.t||sameLanding(llt,tms(d.landing.t))||llt<tms(d.landing.t)));
+  // tiles
+  var p=d.pos||{},alt=p.alt||0,h='';
+  h+=tile('Altitude',p.ground?'Ground':nf(alt)+' ft',p.ground?'on the ground':(alt>=18000?'Flight level '+Math.round(alt/100):nf(alt*0.3048)+' m'));
+  h+=tile('Speed',nf(p.gs||0)+' kt',nf((p.gs||0)*1.852)+' km/h');
+  if(d.eta&&!landed){var eta=new Date(d.eta).getTime(),mins=(eta-Date.now())/60000;
+    var zl=d.arrZone?zoneClock(eta,d.arrZone):null;
+    var loc=zl?zl.t:d.arrOffsetMin!=null?destClock(eta,d.arrOffsetMin):null,lab=zl?zl.z:(d.arrTz||(d.arrOffsetMin!=null?utcLabel(d.arrOffsetMin):''));
+    h+=tile('Arrives',loc||clock(new Date(eta)),loc?(esc(lab)+' · '+clock(new Date(eta))+' your time'):'your time · in '+dur(mins));}
+  else h+=tile('Heading',String(Math.round(p.hdg||0)).padStart(3,'0')+'°',landed?'':'');
+  var depLL=d.dep&&d.dep.lat!=null&&p.lat!=null;
+  if(noArr&&depLL&&!landed)h+=tile('Flown',nf(gcNm(d.dep.lat,d.dep.lon,p.lat,p.lon))+' nm','from '+esc(d.dep.icao||'departure')+', straight line');
+  else h+=tile('Distance',d.toGo!=null&&!landed?nf(d.toGo)+' nm':(d.total!=null?nf(d.total)+' nm':'—'),d.total!=null?(landed?'flown':'of '+nf(d.total)+' nm'):'');
+  $('tiles').innerHTML=h;
+  $('mapLegend').textContent=d.route?'Route from the flight plan':(noArr?(depLL?'From '+(d.dep.icao||'departure')+' · no flight plan':'No flight plan'):'Great-circle route');
+  newFix(d);
+  if(!land)loadLand();
+  drawMap(d);
+}
+
+// ---------------- the aircraft moves smoothly between updates
+// From the last position it carries on at its ground speed along its track (worked out from the last two positions,
+// else its heading), for 10 s at most. Each new position takes over without a jump: the aircraft glides onto it,
+// and if it's already ahead it waits there rather than going backwards.
+var DR_MAX_S=10,move=null,disp=null,mapP=null,planeShown=null,raf=0,lastFrame=0;
+function gcNm(la1,lo1,la2,lo2){var R=Math.PI/180,h=Math.pow(Math.sin((la2-la1)*R/2),2)+Math.cos(la1*R)*Math.cos(la2*R)*Math.pow(Math.sin((lo2-lo1)*R/2),2);return 2*3440.065*Math.asin(Math.min(1,Math.sqrt(h)));}
+function nmBetween(a,b){var R=Math.PI/180,dl=(b.lat-a.lat)*60,dn=wrapLon(b.lon,a.lon)-a.lon;return Math.sqrt(dl*dl+Math.pow(dn*60*Math.cos(a.lat*R),2));}
+function bearing(a,b){var R=Math.PI/180,dn=(wrapLon(b.lon,a.lon)-a.lon)*Math.cos((a.lat+b.lat)/2*R),dl=b.lat-a.lat;return (Math.atan2(dn,dl)/R+360)%360;}
+function newFix(d){
+  var p=d.pos;if(!p||p.lat==null){move=null;disp=null;return;}
+  var at=dataMs||Date.now(),prev=move;
+  if(prev&&prev.lat===p.lat&&prev.lon===p.lon&&Math.abs(prev.at-at)<4000)return;     // the same position again
+  var trk=p.hdg||0;
+  if(prev&&at-prev.at>=1000&&at-prev.at<=60000&&nmBetween(prev,p)>=0.2)trk=bearing(prev,p);
+  else if(prev&&prev.trk!=null&&at-prev.at<=60000&&!p.ground)trk=prev.trk;
+  move={lat:p.lat,lon:p.lon,at:at,gs:p.ground||!(p.gs>=40)?0:p.gs,trk:trk,hdg:p.hdg||0};
+  // a big jump (a new flight, a long gap, on the ground): straight there
+  if(!disp||!prev||at-prev.at>90000||nmBetween(disp,move)>30||!move.gs)disp={lat:p.lat,lon:p.lon};
+  animate();
+}
+function target(now){
+  var m=move,s=Math.max(0,Math.min(DR_MAX_S,(now-m.at)/1000)),R=Math.PI/180,dist=m.gs*s/3600;     // nm
+  return {lat:m.lat+dist*Math.cos(m.trk*R)/60,lon:m.lon+dist*Math.sin(m.trk*R)/(60*Math.max(0.05,Math.cos(m.lat*R)))};
+}
+function step(dt,now){
+  if(!move||!disp)return;
+  var T=target(now),R=Math.PI/180,k=1-Math.exp(-dt/600),c=Math.cos(disp.lat*R);
+  var de=(wrapLon(T.lon,disp.lon)-disp.lon)*c,dn=T.lat-disp.lat,ue=Math.sin(move.trk*R),un=Math.cos(move.trk*R);
+  var along=de*ue+dn*un,cross=-de*un+dn*ue;
+  if(along<0)along=0;                       // already ahead of the new position: wait for it (never backwards)
+  else along*=k;
+  cross*=k;
+  disp={lat:disp.lat+along*un+cross*ue,lon:disp.lon+(along*ue-cross*un)/Math.max(0.05,c)};
+}
+function placePlane(force){
+  var g=$('mPlane');if(!g||!mapP||!disp)return;
+  var lo=wrapLon(disp.lon,mapP.lon),x=+mapP.X(lo),y=+mapP.Y(mercY(disp.lat));
+  if(!force&&planeShown&&Math.abs(planeShown[0]-x)<0.05&&Math.abs(planeShown[1]-y)<0.05)return;
+  planeShown=[x,y];g.setAttribute('transform','translate('+x.toFixed(2)+' '+y.toFixed(2)+') rotate('+(move?move.hdg:mapP.hdg)+')');
+}
+function animate(){
+  if(raf||!move)return;lastFrame=0;
+  var f=function(ts){
+    raf=0;if(!move||document.hidden||!last||!last.flying)return;
+    if(!lastFrame||ts-lastFrame>=100){var dt=lastFrame?Math.min(1000,ts-lastFrame):100;lastFrame=ts;step(dt,Date.now());placePlane(false);}
+    if(move.gs>0&&Date.now()-move.at<(DR_MAX_S+3)*1000)raf=requestAnimationFrame(f);
+  };
+  raf=requestAnimationFrame(f);
+}
+
+// ---------------- updates: every 5 s while the page is on screen, straight away when it comes back
+// A phone pauses a page in the background, so it doesn't ask then at all, and asks at once when it's shown again
+// (switching back to the tab or app, unlocking, coming back online).
+var POLL_MS=5000,IDLE_POLL_MS=10000,timer=0,inflight=false,lastAsk=0;
+function schedule(ms){clearTimeout(timer);timer=0;if(!document.hidden)timer=setTimeout(tick,ms);}
+function getJSON(url,ms){
+  var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ctl)ctl.abort();},ms);
+  return fetch(url,ctl?{cache:'no-store',signal:ctl.signal}:{cache:'no-store'}).then(function(r){clearTimeout(to);if(!r.ok)throw new Error(r.status);return r.json();},
+    function(e){clearTimeout(to);throw e;});
+}
+// The always-on page: its snapshot (data.json, uploaded after each flight) whenever the PC is off; the live flight from
+// the PC whenever it answers. The snapshot is read again every 5 minutes, the PC every 5 s while flying (10 s when
+// not), and every 30 s while it doesn't answer.
+var snap=null,snapAt=0,liveOk=null,liveNext=0,snapMode=false;
+function staticTick(){
+  clearTimeout(timer);timer=0;
+  if(document.hidden||inflight)return;
+  inflight=true;lastAsk=Date.now();
+  var now=Date.now(),needSnap=!snap||now-snapAt>300000;
+  (needSnap?getJSON(CFG.snap+'?t='+Math.floor(now/60000),8000).then(function(d){snap=d;snapAt=Date.now();},function(){}):Promise.resolve()).then(function(){
+    var ask=CFG.live&&(!snap||snap.on!==false)&&(liveOk!==false||Date.now()>=liveNext);
+    if(!ask)return null;
+    return getJSON(CFG.live.replace(/\/?$/,'/')+'api/flight',8000).then(function(d){liveOk=true;return d;},function(){liveOk=false;liveNext=Date.now()+30000;return null;});
+  }).then(function(live){
+    inflight=false;
+    var d=live||snap;
+    if(!d){fails++;show('vDown');pill('off','Offline');move=null;$('vCareer').hidden=true;updated();schedule(15000);return;}
+    fails=0;snapMode=!live;
+    var age=!snapMode&&d.flying&&d.pos&&d.pos.age!=null?Math.max(0,+d.pos.age||0):0;
+    dataMs=snapMode?0:Date.now()-age*1000;render(d);updated();
+    schedule(snapMode?30000:(d.on&&d.flying?POLL_MS:IDLE_POLL_MS));
+  });
+}
+function tick(){
+  if(CFG){staticTick();return;}
+  clearTimeout(timer);timer=0;
+  if(document.hidden||inflight)return;
+  inflight=true;lastAsk=Date.now();
+  var ctl=window.AbortController?new AbortController():null,to=setTimeout(function(){if(ctl)ctl.abort();},8000);
+  fetch('api/flight',ctl?{cache:'no-store',signal:ctl.signal}:{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
+    .then(function(d){clearTimeout(to);inflight=false;fails=0;
+      var age=d&&d.flying&&d.pos&&d.pos.age!=null?Math.max(0,+d.pos.age||0):0;
+      dataMs=Date.now()-age*1000;render(d);updated();schedule(d.on&&d.flying?POLL_MS:IDLE_POLL_MS);})
+    .catch(function(){clearTimeout(to);inflight=false;fails++;if(fails>=2||!last){show('vDown');pill('off','Offline');move=null;$('vCareer').hidden=true;}updated();
+      schedule(fails<3?POLL_MS:Math.min(15000,POLL_MS*(fails-1)));});
+}
+function wake(){
+  if(document.hidden||inflight)return;
+  if(Date.now()-lastAsk<1500){if(!timer)schedule(POLL_MS);return;}     // (visible, focus and pageshow often come together)
+  tick();
+}
+function updated(){
+  if(snapMode&&!fails){$('upd').textContent=last&&last.on===false?'Not sharing':'The live flight shows here when the pilot is flying';return;}
+  if(!dataMs){$('upd').textContent=fails?'Can\'t connect':'Connecting…';return;}
+  var s=Math.max(0,Math.round((Date.now()-dataMs)/1000));
+  $('upd').textContent='Updated '+(s<10?'just now':s<60?s+' s ago':s<3600?Math.round(s/60)+' min ago':Math.round(s/3600)+' h ago');
+  var a=document.querySelector('.llago');if(a)a.textContent=agoText(+a.getAttribute('data-t'));
+}
+setInterval(function(){if(!document.hidden)updated();},1000);
+document.addEventListener('visibilitychange',function(){if(document.hidden){clearTimeout(timer);timer=0;}else{wake();animate();}});
+window.addEventListener('pageshow',wake);window.addEventListener('focus',wake);window.addEventListener('online',wake);
+var rt=0,rw=window.innerWidth;window.addEventListener('resize',function(){clearTimeout(rt);rt=setTimeout(function(){if(last&&last.flying)drawMap(last);if(last&&last.career&&window.innerWidth!==rw)drawCareerMap(last.career);rw=window.innerWidth;},120);});
+tick();
+
+// ---------------- About / Privacy / Terms
+function openLegal(doc){
+  Array.prototype.forEach.call(document.querySelectorAll('#pseg button'),function(b){b.classList.toggle('sel',b.getAttribute('data-doc')===doc);});
+  $('pbody').innerHTML='<div class="doc">'+LEGAL[doc]+'</div>';$('pbody').scrollTop=0;
+  $('psheet').classList.add('open');$('pscrim').classList.add('open');
+}
+function closeLegal(){$('psheet').classList.remove('open');$('pscrim').classList.remove('open');}
+document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('[data-doc]');if(b)openLegal(b.getAttribute('data-doc'));});
+$('pdone').onclick=closeLegal;$('pscrim').onclick=closeLegal;
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLegal();});
+</script>
+</body>
+</html>
